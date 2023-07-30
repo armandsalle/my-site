@@ -9,7 +9,7 @@ import Link from "next/link"
 
 export default function Home() {
   return (
-    <main className="mx-auto my-12 max-w-[33.75rem] px-6 text-black antialiased sm:my-32">
+    <main className="mx-auto max-w-[33.75rem] px-6 text-black antialiased sm:my-32">
       <header className="flex flex-col gap-8">
         <div className="flex items-center gap-4">
           <Avatar>
