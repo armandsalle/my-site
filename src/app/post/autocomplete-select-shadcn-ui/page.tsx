@@ -72,7 +72,7 @@ export default function Post() {
           . Feel free to play around with it and customize it to your needs.
         </p>
         <Button asChild size="sm" variant="default">
-          <Link href="https://github.com/armandsalle/my-site/tree/main/src/components/automplete.tsx" target="_blank">
+          <Link href="https://github.com/armandsalle/my-site/blob/main/src/components/autocomplete.tsx" target="_blank">
             <Github size={16} className="mr-2" />
             Get the source code here
           </Link>
