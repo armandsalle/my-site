@@ -8,6 +8,19 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Armand Sallé",
   description: "Armand Sallé is a frontend engineer currently working at Dalma. He cares about design and experience.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    title: "Armand Sallé",
+    description:
+      "Armand Sallé is a frontend engineer currently working at Dalma. He cares about design and experience.",
+    images: [
+      {
+        url: "https://armand-salle.fr/og.png",
+        alt: "Armand Sallé",
+      },
+    ],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

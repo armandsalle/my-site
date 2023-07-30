@@ -1,6 +1,6 @@
 import { DalmaCard } from "@/components/dalma-card"
 import { DalmaDrawer } from "@/components/dalma-drawer"
-import { h3, muted, p } from "@/components/typography"
+import { h3, h4, lead, muted, p } from "@/components/typography"
 import { Avatar } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
@@ -26,7 +26,7 @@ export default function Home() {
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <h2 className={cn(h3, "flex")}>Armand Sallé</h2>
+                  <h1 className={cn(h3, "flex")}>Armand Sallé</h1>
                 </TooltipTrigger>
                 <TooltipContent align="start">
                   <p>With a french accent please 🇫🇷</p>
@@ -36,7 +36,7 @@ export default function Home() {
 
             <div className={muted}>
               <div>
-                Frontend engineer currently at <DalmaCard />
+                Frontend engineer currently working at <DalmaCard />
                 <DalmaDrawer />.
               </div>
             </div>
@@ -69,6 +69,15 @@ export default function Home() {
           </span>
         </div>
       </header>
+      <div className="mt-8 flex flex-col gap-4">
+        <h3 className={lead}>Latest posts</h3>
+        <Link
+          href="/post/autocomplete-select-shadcn-ui"
+          className="py-1 pl-0.5 pr-2 font-medium inline-flex hover:underline hover:underline-offset-2 rounded-lg"
+        >
+          Autocomplete with Shadcn UI
+        </Link>
+      </div>
     </main>
   )
 }
