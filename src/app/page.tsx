@@ -35,14 +35,14 @@ export default function Home() {
             </TooltipProvider>
 
             <div className={muted}>
-              <div>
+              <div >
                 Frontend engineer currently working at <DalmaCard />
                 <DalmaDrawer />.
               </div>
             </div>
           </div>
         </div>
-        <p className={p}>
+        <p className={`p indent-5`}>
           Frontend developer who cares about design and experience.
           <br />
           🫶 React, TS, Tailwind and all that good stuff.
