@@ -71,11 +71,20 @@ export default function Home() {
       </header>
       <div className="mt-8 flex flex-col gap-4">
         <h3 className={lead}>Latest posts</h3>
+
+        <Link
+          href="/post/phone-input-shadcn-ui"
+          className="py-1 pl-0.5 pr-2 font-medium inline-flex items-center gap-2 hover:underline hover:underline-offset-2 rounded-lg"
+        >
+          <span className="text-sm text-slate-500">2024-03-08</span>
+          <span>Phone input with Shadcn UI</span>
+        </Link>
         <Link
           href="/post/autocomplete-select-shadcn-ui"
-          className="py-1 pl-0.5 pr-2 font-medium inline-flex hover:underline hover:underline-offset-2 rounded-lg"
+          className="py-1 pl-0.5 pr-2 font-medium inline-flex items-center gap-2 hover:underline hover:underline-offset-2 rounded-lg"
         >
-          Autocomplete with Shadcn UI
+          <span className="text-sm text-slate-500">2023-07-30</span>
+          <span>Autocomplete with Shadcn UI</span>
         </Link>
       </div>
     </main>
