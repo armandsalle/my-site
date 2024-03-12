@@ -25,7 +25,7 @@ export default function Post() {
         </p>
         <Button asChild size="sm" variant="default">
           <Link
-            href="https://github.com/armandsalle/my-site/blob/main/src/app/post/phone-input-shadcn-ui/page.tsx"
+            href="https://github.com/armandsalle/my-site/blob/main/src/app/post/phone-input-shadcn-ui/_phone-input.tsx"
             target="_blank"
           >
             <Github size={16} className="mr-2" />
