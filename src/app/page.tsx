@@ -14,8 +14,8 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <Avatar>
             <Image
-              className="aspect-square h-full w-full"
-              src="/armand-2.jpg"
+              className="aspect-square h-full w-full object-cover"
+              src="/armand-small.png"
               alt="Armand"
               width={120}
               height={120}
@@ -36,38 +36,51 @@ export default function Home() {
 
             <div className={muted}>
               <div>
-                Frontend engineer currently working at <DalmaCard />
-                <DalmaDrawer />.
+                Frontend engineer previously working at{" "}
+                <Link href="https://www.dalma.co/" target="_blank" className="underline">
+                  Dalma
+                </Link>
+                .
               </div>
             </div>
           </div>
         </div>
         <p className={p}>
-          Frontend developer who cares about design and experience.
-          <br />
-          🫶 React, TS, Tailwind and all that good stuff.
-          <br />
-          🔮 Betting on SolidJs for the futur.
+          I&apos;ve been a front-end developer for 4 years, working mainly with React, TypeScript, Next.js, and many
+          others. Passionate about what I do, I get fully involved in every project, with a particular focus on design.
         </p>
-        <div className="bg-slate-100 p-3 ring-1 ring-slate-300 rounded-xl">
-          <span className={cn(muted, "text-slate-500")}>
-            Follow me on{" "}
+        <p>
+          <span className="font-semibold">Want to know more about me?</span>
+          <br />
+          <span>
+            Visit my{" "}
             <Link
-              href="https://twitter.com/ArmandSalle"
+              href="https://www.linkedin.com/in/armand-sall%C3%A9-9550a613a/"
+              target="_blank"
               className="text-slate-600 font-medium underline underline-offset-2"
             >
-              Twitter
+              LinkedIn profile
             </Link>{" "}
-            or{" "}
-            <Link
-              href="https://github.com/armandsalle"
-              className="text-slate-600 font-medium underline underline-offset-2"
-            >
-              Github
-            </Link>{" "}
-            for more.
+            (french)
           </span>
-        </div>
+        </p>
+        <p>
+          Follow me on{" "}
+          <Link
+            href="https://twitter.com/ArmandSalle"
+            className="text-slate-600 font-medium underline underline-offset-2"
+          >
+            Twitter
+          </Link>{" "}
+          or{" "}
+          <Link
+            href="https://github.com/armandsalle"
+            className="text-slate-600 font-medium underline underline-offset-2"
+          >
+            Github
+          </Link>{" "}
+          for more.
+        </p>
       </header>
       <div className="mt-8 flex flex-col gap-4">
         <h3 className={lead}>Latest posts</h3>
