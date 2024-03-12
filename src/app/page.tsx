@@ -1,6 +1,4 @@
-import { DalmaCard } from "@/components/dalma-card"
-import { DalmaDrawer } from "@/components/dalma-drawer"
-import { h3, h4, lead, muted, p } from "@/components/typography"
+import { h3, lead, muted, p } from "@/components/typography"
 import { Avatar } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
