@@ -1,0 +1,32 @@
+---
+interface Props {
+  title: string
+  date: string
+  description: string
+  href: string
+}
+
+const { title, date, description, href } = Astro.props
+const postId = title.toLowerCase().replace(/ /g, "-")
+---
+
+<a
+  class="group inline-flex items-start gap-3 rounded-lg py-1 pl-0.5 pr-2 outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+  href={href}
+  aria-labelledby={postId}
+>
+  <span class="mt-[2px] flex-shrink-0 text-sm font-medium text-slate-400">
+    {date}
+  </span>
+  <article>
+    <h4
+      class="font-medium group-hover:underline group-hover:underline-offset-2"
+      id={postId}
+    >
+      {title}
+    </h4>
+    <p class="text-sm text-slate-500">
+      {description}
+    </p>
+  </article>
+</a>

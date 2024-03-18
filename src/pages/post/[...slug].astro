@@ -1,0 +1,38 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content"
+import BlogPost from "../../layouts/BlogPost.astro"
+
+import "@fontsource/geist-sans/400.css"
+import "@fontsource/geist-sans/500.css"
+import "@fontsource/geist-sans/600.css"
+import "@fontsource/geist-sans/700.css"
+
+export const prerender = true
+
+export async function getStaticPaths() {
+  const posts = await getCollection("post")
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }))
+}
+type Props = CollectionEntry<"post">
+
+const post = Astro.props
+const { Content } = await post.render()
+---
+
+<BlogPost {...post.data}>
+  <Content />
+</BlogPost>
+
+<script>
+  import { createIcons, ExternalLink, ArrowLeft } from "lucide"
+
+  createIcons({
+    icons: {
+      ExternalLink,
+      ArrowLeft,
+    },
+  })
+</script>

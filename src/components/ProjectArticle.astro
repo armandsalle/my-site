@@ -1,0 +1,66 @@
+---
+import { cn } from "../utils/utils"
+
+interface Props {
+  title: string
+  description: string
+  language: "Typescript" | "Javascript" | "React" | "Go"
+  link: string
+  linkText?: string
+}
+
+const {
+  title,
+  description,
+  language,
+  link,
+  linkText = "View on GitHub",
+} = Astro.props
+
+const bgColors = {
+  Typescript: "bg-blue-100",
+  Javascript: "bg-amber-100",
+  Go: "bg-cyan-100",
+  React: "bg-sky-100",
+}
+
+const textColors = {
+  Typescript: "text-blue-600",
+  Javascript: "text-amber-600",
+  Go: "text-cyan-600",
+  React: "text-sky-700",
+}
+
+const tagBgColor = bgColors[language]
+const tagTextColor = textColors[language]
+---
+
+<article
+  class="flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-md shadow-slate-200"
+>
+  <slot />
+  <div class="flex h-full flex-col justify-between gap-6">
+    <div>
+      <h4 class="text-base font-medium text-slate-800">{title}</h4>
+      <p class="mt-1 text-sm text-slate-500">
+        {description}
+      </p>
+    </div>
+
+    <div class="flex w-full items-center justify-between">
+      <div class={cn("rounded-full px-2 py-1", tagBgColor)}>
+        <span class={cn("block text-sm font-semibold", tagTextColor)}
+          >{language}</span
+        >
+      </div>
+      <a
+        href={link}
+        class="inline-flex items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+        target="_blank"
+      >
+        <span class="text-xs font-normal text-slate-500">{linkText}</span>
+        <i data-lucide="external-link" class="size-3 text-slate-400"></i>
+      </a>
+    </div>
+  </div>
+</article>

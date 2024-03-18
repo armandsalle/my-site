@@ -1,0 +1,80 @@
+---
+import { Image } from "astro:assets"
+import ProjectArticle from "./ProjectArticle.astro"
+import SectionTitle from "./SectionTitle.astro"
+---
+
+<div class="bg-zinc-100 p-6 md:rounded-2xl">
+  <SectionTitle>Side projects</SectionTitle>
+  <p class="leading-7 text-slate-500">
+    Discover side projects I've been working on.
+  </p>
+
+  <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <ProjectArticle
+      title="CLI - Celvercel"
+      description="A little CLI to draw shapes in the terminal. Based on the Oreo meme but with the Vercel logo."
+      language="Go"
+      link="https://github.com/armandsalle/celvercel-cli"
+    >
+      <div class="shrink-0 rounded-lg bg-black p-2 text-white">
+        <pre><span class="text-pink-400">~</span> <span class="text-green-400">npx</span> celvercel
+  /\
+ /  \
+/____\</pre>
+      </div>
+    </ProjectArticle>
+
+    <ProjectArticle
+      title="Sérénité Viager"
+      description="A simulator for real estate projects in life annuity, made for a client. The website is made with React, Shadcn ui and TailwindCSS."
+      language="React"
+      link="https://www.serenite-viager-simulateur.fr/"
+      linkText="View website"
+    >
+      <div
+        class="flex h-28 shrink-0 items-center justify-center rounded-lg bg-[#f7f7f7] p-2"
+      >
+        <div
+          class="inline-flex items-center gap-2 rounded bg-[#f87060] px-4 py-2 text-base font-medium text-white"
+        >
+          Simulate your project<i data-lucide="home" class="size-4 text-white"
+          ></i>
+        </div>
+      </div>
+    </ProjectArticle>
+
+    <ProjectArticle
+      title="Butter slider"
+      description="Butter is a simple drag and hold slider. With 0 dependencies. One of my first TS project, no longer maintained."
+      language="Typescript"
+      link="https://github.com/armandsalle/butter-slider"
+    >
+      <div
+        class="flex h-28 shrink-0 items-center gap-2 overflow-hidden rounded-lg bg-zinc-100 p-2 pl-4"
+      >
+        <div class="h-16 w-1/3 shrink-0 rounded-md bg-indigo-500"></div>
+        <div class="h-16 w-1/3 shrink-0 rounded-md bg-indigo-500"></div>
+        <div class="h-16 w-1/3 shrink-0 rounded-md bg-indigo-500"></div>
+      </div>
+    </ProjectArticle>
+
+    <ProjectArticle
+      title="Vite + Webflow template"
+      description="A simple template to use Vite with Webflow. No longer maintained, but still a good starting point for a project with Vite and Webflow."
+      language="Javascript"
+      link="https://github.com/armandsalle/vite-javascript-webflow"
+    >
+      <div
+        class="flex h-28 shrink-0 items-center justify-center rounded-lg bg-amber-100 p-2"
+      >
+        <Image
+          width={64}
+          height={64}
+          src="https://vitejs.dev/logo.svg"
+          alt="Vite logo"
+        />
+      </div>
+    </ProjectArticle>
+  </div>
+</div>

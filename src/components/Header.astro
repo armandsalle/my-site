@@ -1,0 +1,67 @@
+---
+import { Image } from "astro:assets"
+import ArmandImage from "../assets/armand.jpeg"
+import SocialLinks from "./SocialLinks.astro"
+import SectionTitle from "./SectionTitle.astro"
+import WorkTag from "./WorkTag.astro"
+import Code from "./Code.astro"
+---
+
+<header class="flex flex-col gap-8">
+  <div class="flex items-center gap-4">
+    <div
+      class="relative flex size-24 shrink-0 overflow-hidden rounded-full border border-white shadow-md shadow-slate-200"
+    >
+      <Image
+        alt="Armand"
+        class="block aspect-square h-full w-full object-cover"
+        loading="eager"
+        src={ArmandImage}
+      />
+    </div>
+    <div class="space-y-1">
+      <div>
+        <h1 class="flex scroll-m-20 text-2xl font-semibold tracking-tight">
+          Armand Sallé
+        </h1>
+        <div class="text-sm text-slate-500">
+          <p>Senior front-end engineer based in Angers, France.</p>
+        </div>
+      </div>
+      <WorkTag />
+    </div>
+  </div>
+
+  <section class="space-y-2">
+    <div class="flex flex-col gap-4">
+      <SectionTitle>About</SectionTitle>
+      <p class="leading-7 text-slate-500">
+        I've been a front-end developer for 5 years, working mainly with React,
+        TypeScript, Next.js, and many others. Passionate about what I do, I get
+        fully involved in every project, with a particular focus on design.
+      </p>
+      <p class="leading-7 text-slate-500">
+        My last last position was at <a
+          target="_blank"
+          class="inline-flex items-center gap-1 rounded-sm underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+          href="https://www.dalma.co/"
+          >Dalma <i data-lucide="external-link" class="size-3 text-slate-400"
+          ></i></a
+        >, a pet insurance startup based in Paris, where I was in charge of the
+        front-end development of the customer-facing application, the internal
+        tools, mentoring two junior developers and creating a shared ui kit.<br
+        />The stack was <Code>react</Code>
+        <Code>next</Code>
+        <Code>tailwind</Code>
+        <Code>@radix-ui</Code>
+        <Code>i18n</Code>
+        <Code>xstate</Code>
+        <Code>@tanstack/react-query</Code>
+        <Code>@mui/material</Code>
+        <Code>vite</Code> and <Code>vitest</Code>.
+      </p>
+
+      <SocialLinks />
+    </div>
+  </section>
+</header>

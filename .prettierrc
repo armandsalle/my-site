@@ -1,0 +1,6 @@
+{
+  "semi": false,
+  "plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
+  "pluginSearchDirs": false,
+  "tailwindFunctions": ["cn"]
+}

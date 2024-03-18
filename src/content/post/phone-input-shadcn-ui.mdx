@@ -1,0 +1,38 @@
+---
+title: "Phone input number component with Shadcn UI"
+description: "Build a custom phone number input with Shadcn UI, libphonenumber-js and react-phone-number-input"
+pubDate: "2024-03-08"
+---
+
+import SocialLink from "../../components/SocialLink.astro"
+import { PhoneInputShadcnUiPhoneInput } from "../../react/phone-input/index"
+
+# Phone input number component with Shadcn&nbsp;UI
+
+This is a demo of a custom phone number component built with Shadcn UI. Feel free to play around with it and customize it to your needs.
+
+<div class="not-prose">
+  <SocialLink
+    href="https://github.com/armandsalle/my-site/tree/main/src/react/phone-input/index.tsx"
+    title="Github"
+    username="Get the code here"
+    logoUrl="https://github.githubassets.com/favicons/favicon.svg"
+  ></SocialLink>
+</div>
+
+You will need some extra packages to make this works.
+
+```bash
+npm install libphonenumber-js i18n-iso-countries react-phone-number-input
+```
+
+Don't forget to register the local you want.
+
+```javascript
+import { registerLocale } from "i18n-iso-countries"
+// The local you want
+import enCountries from "i18n-iso-countries/langs/en.json"
+registerLocale(enCountries)
+```
+
+<PhoneInputShadcnUiPhoneInput client:load />

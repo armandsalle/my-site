@@ -1,0 +1,35 @@
+---
+import { Image } from "astro:assets"
+
+interface Props {
+  href: string
+  title?: string
+  logoUrl: string
+  username: string
+}
+
+const { href, title, logoUrl, username } = Astro.props
+---
+
+<a
+  class="not-prose inline-flex items-center space-x-1.5 rounded-md border border-slate-200 px-2 py-1 text-sm font-medium shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+  href={href}
+  target="_blank"
+  title={title}
+>
+  <Image
+    width={16}
+    height={16}
+    src={logoUrl}
+    alt={title ?? ""}
+    class="h-4 w-4"
+    loading="eager"
+  />
+  <span class="not-prose text-black">{username}</span>
+  {
+    title ? (
+      <span class="not-prose text-xs font-normal text-slate-500">{title}</span>
+    ) : null
+  }
+  <i data-lucide="external-link" class="not-prose size-3 text-slate-400"></i>
+</a>
