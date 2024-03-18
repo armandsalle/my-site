@@ -7,8 +7,6 @@ import "@fontsource/geist-sans/500.css"
 import "@fontsource/geist-sans/600.css"
 import "@fontsource/geist-sans/700.css"
 
-export const prerender = true
-
 export async function getStaticPaths() {
   const posts = await getCollection("post")
   return posts.map((post) => ({
