@@ -55,7 +55,7 @@ export const PhoneInputShadcnUiPhoneInput = () => {
   const isValidPhoneNumber = matchIsValidPhoneNumber(phoneNumber ?? "")
 
   return (
-    <div className="mt-8 flex flex-col gap-4">
+    <div className="not-prose mt-8 flex flex-col gap-4">
       <div className="flex gap-2">
         <ComboboxCountryInput
           value={country}
