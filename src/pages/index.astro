@@ -3,6 +3,7 @@ import BaseHead from "../components/BaseHead.astro"
 import Header from "../components/Header.astro"
 import Projects from "../components/Projects.astro"
 import Posts from "../components/Posts.astro"
+import Contact from "../components/Contact.astro"
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts"
 
 import "@fontsource/geist-sans/400.css"
@@ -23,13 +24,23 @@ import "@fontsource/geist-sans/700.css"
         <Header />
       </div>
 
-      <div class="max-w-3xl px-0 md:px-4">
+      <section class="max-w-3xl px-0 md:px-4">
         <Projects />
-      </div>
+      </section>
 
-      <div class="max-w-2xl px-4">
+      <section class="max-w-2xl px-4">
         <Posts />
-      </div>
+      </section>
+
+      <section
+        class="mt-8 flex w-full max-w-2xl flex-col items-center gap-4 px-4"
+      >
+        <Contact />
+      </section>
+
+      <footer class="mt-4 text-center text-sm text-gray-400">
+        &copy; {new Date().getFullYear()}
+      </footer>
 
       <script>
         import { createIcons, ExternalLink, ArrowRight, Home } from "lucide"
