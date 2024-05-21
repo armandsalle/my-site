@@ -1,4 +1,5 @@
 import {
+  type CountryCallingCode,
   type CountryCode,
   getCountries,
   getCountryCallingCode,
@@ -40,7 +41,7 @@ export function getCountriesOptions() {
     .filter((option) => option.label) as {
     value: CountryCode
     label: string
-    indicatif: string
+    indicatif: CountryCallingCode
   }[]
 
   return options

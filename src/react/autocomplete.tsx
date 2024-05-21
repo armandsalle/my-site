@@ -105,49 +105,52 @@ export const AutoComplete = ({
         />
       </div>
       <div className="relative mt-1">
-        {isOpen ? (
-          <div className="animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full rounded-xl bg-stone-50 outline-none">
-            <CommandList className="rounded-lg ring-1 ring-slate-200">
-              {isLoading ? (
-                <CommandPrimitive.Loading>
-                  <div className="p-1">
-                    <Skeleton className="h-8 w-full" />
-                  </div>
-                </CommandPrimitive.Loading>
-              ) : null}
-              {options.length > 0 && !isLoading ? (
-                <CommandGroup>
-                  {options.map((option) => {
-                    const isSelected = selected?.value === option.value
-                    return (
-                      <CommandItem
-                        key={option.value}
-                        value={option.label}
-                        onMouseDown={(event) => {
-                          event.preventDefault()
-                          event.stopPropagation()
-                        }}
-                        onSelect={() => handleSelectOption(option)}
-                        className={cn(
-                          "flex w-full items-center gap-2",
-                          !isSelected ? "pl-8" : null,
-                        )}
-                      >
-                        {isSelected ? <Check className="w-4" /> : null}
-                        {option.label}
-                      </CommandItem>
-                    )
-                  })}
-                </CommandGroup>
-              ) : null}
-              {!isLoading ? (
-                <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-center text-sm">
-                  {emptyMessage}
-                </CommandPrimitive.Empty>
-              ) : null}
-            </CommandList>
-          </div>
-        ) : null}
+        <div
+          className={cn(
+            "animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full rounded-xl bg-white outline-none",
+            isOpen ? "block" : "hidden",
+          )}
+        >
+          <CommandList className="rounded-lg ring-1 ring-slate-200">
+            {isLoading ? (
+              <CommandPrimitive.Loading>
+                <div className="p-1">
+                  <Skeleton className="h-8 w-full" />
+                </div>
+              </CommandPrimitive.Loading>
+            ) : null}
+            {options.length > 0 && !isLoading ? (
+              <CommandGroup>
+                {options.map((option) => {
+                  const isSelected = selected?.value === option.value
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      value={option.label}
+                      onMouseDown={(event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                      }}
+                      onSelect={() => handleSelectOption(option)}
+                      className={cn(
+                        "flex w-full items-center gap-2",
+                        !isSelected ? "pl-8" : null,
+                      )}
+                    >
+                      {isSelected ? <Check className="w-4" /> : null}
+                      {option.label}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            ) : null}
+            {!isLoading ? (
+              <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-center text-sm">
+                {emptyMessage}
+              </CommandPrimitive.Empty>
+            ) : null}
+          </CommandList>
+        </div>
       </div>
     </CommandPrimitive>
   )
