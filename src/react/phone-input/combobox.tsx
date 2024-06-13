@@ -7,6 +7,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "../ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { CaretSortIcon } from "@radix-ui/react-icons"
@@ -58,27 +59,29 @@ export function ComboboxCountryInput<T extends Option>({
         <Command>
           <CommandInput placeholder={placeholder} className="h-9" />
           <CommandEmpty>{emptyMessage}</CommandEmpty>
-          <CommandGroup className="mt-2 h-full max-h-48 overflow-auto p-0 [&_div[cmdk-group-items]]:flex [&_div[cmdk-group-items]]:flex-col [&_div[cmdk-group-items]]:gap-1">
-            {options.map((option) => {
-              const isSelected = value.value === option.value
+          <CommandList>
+            <CommandGroup className="mt-2 h-full max-h-48 overflow-auto p-0 [&_div[cmdk-group-items]]:flex [&_div[cmdk-group-items]]:flex-col [&_div[cmdk-group-items]]:gap-1">
+              {options.map((option) => {
+                const isSelected = value.value === option.value
 
-              return (
-                <CommandItem
-                  key={option.value}
-                  value={renderValue(option)}
-                  onSelect={() => {
-                    onValueChange(option)
-                    setOpen(false)
-                  }}
-                >
-                  {renderOption({ option, isSelected: isSelected })}
-                  {isSelected ? (
-                    <Check className="ml-auto mr-2 h-4 w-4" />
-                  ) : null}
-                </CommandItem>
-              )
-            })}
-          </CommandGroup>
+                return (
+                  <CommandItem
+                    key={option.value}
+                    value={renderValue(option)}
+                    onSelect={() => {
+                      onValueChange(option)
+                      setOpen(false)
+                    }}
+                  >
+                    {renderOption({ option, isSelected: isSelected })}
+                    {isSelected ? (
+                      <Check className="ml-auto mr-2 h-4 w-4" />
+                    ) : null}
+                  </CommandItem>
+                )
+              })}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
