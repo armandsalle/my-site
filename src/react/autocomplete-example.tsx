@@ -59,7 +59,7 @@ export function AutocompleteExample() {
       </div>
       <AutoComplete
         options={FRAMEWORKS}
-        emptyMessage="No resulsts."
+        emptyMessage="No results."
         placeholder="Find something"
         isLoading={isLoading}
         onValueChange={setValue}
