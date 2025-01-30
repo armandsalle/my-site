@@ -1,0 +1,211 @@
+---
+title: "Persisting Form Data in React: A Modern Approach with Nuqs"
+description: "Discover how to persist and share form data in React using Nuqs, a modern type-safe URL state manager. Move beyond localStorage limitations to create shareable, type-safe forms with zero backend requirements."
+pubDate: "2025-01-30"
+---
+
+# Persisting Form Data in React: A Modern Approach with Nuqs
+
+Form data persistence is a common requirement in web applications. Whether it's saving a user's progress, handling page refreshes, or sharing form states between users, developers often face this challenge. While traditional solutions like `localStorage` have served us well, modern tools offer more elegant solutions. Let's explore how [Nuqs](https://nuqs.47ng.com/) provides a superior approach to this problem.
+
+## Traditional Approaches and Their Limitations
+
+### Local Storage
+
+The classic approach uses browser's localStorage:
+
+```tsx
+// Storing form data
+localStorage.setItem("formData", JSON.stringify(formData))
+
+// Retrieving form data
+const savedData = JSON.parse(localStorage.getItem("formData"))
+```
+
+However, this method has several limitations:
+
+- Data sharing between users is impossible
+- Requires additional state management setup
+- No built-in data validation
+
+### Database with URL Parameters
+
+A more advanced solution involves:
+
+1. Storing form data in a database
+2. Generating a unique ID
+3. Saving the ID in localStorage and URL parameters
+4. Retrieving data using the ID
+
+While this works, it requires significant backend infrastructure and careful implementation.
+
+## Enter Nuqs: A Better Solution
+
+[Nuqs](https://nuqs.47ng.com/) is a **type-safe search params state manager for React** that elegantly solves these challenges. It offers:
+
+- Built-in type safety
+- URL-based state management
+- Easy data validation
+- Shareable form states
+- Zero backend requirements
+
+### Implementing Form Persistence with Nuqs
+
+Let's build a form with validation using [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/), and [Nuqs](https://nuqs.47ng.com/):
+
+```tsx
+import { useQueryState, parseAsJson } from "nuqs"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+
+// Define our schema
+const statusEnum = ["working", "chilling", "cooking"] as const
+const formSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  status: z.enum(statusEnum),
+})
+type FormSchemaType = z.infer<typeof formSchema>
+
+function MyForm() {
+  // Initialize Nuqs state
+  const [jsonData, setJsonData] = useQueryState(
+    "json",
+    parseAsJson(formSchema.parse),
+  )
+
+  // Set up form with React Hook Form
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(formSchema),
+    values: jsonData, // Pre-fill form with URL data
+  })
+
+  const handleSubmit = form.handleSubmit((data) => {
+    console.log(data)
+    setJsonData(data) // Update URL state
+  })
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <TextInput label="First name" {...form.register("firstName")} />
+      <TextInput label="Last name" {...form.register("lastName")} />
+      <SelectInput
+        label="Status"
+        options={statusEnum}
+        {...form.register("status")}
+      />
+      <Button type="submit">Submit</Button>
+    </form>
+  )
+}
+```
+
+Benefits of This Approach:
+
+1. **Automatic Persistence**: Form data is automatically saved in the URL
+2. **Shareability**: Users can share their form state by copying the URL
+3. **Type Safety**: Built-in TypeScript support with Zod validation
+4. **Simple Implementation**: Minimal code required
+5. **No Backend**: Works entirely client-side
+6. **Browser Integration**: Works with browser history and bookmarks
+
+When submitted, the form data appears in the URL:
+`https://app.com?json={"firstName":"Joey","lastName":"Tribbiani","status":"chilling"}` (URL-encoded in practice).
+
+### Router Integration and Navigation History
+
+One of Nuqs's powerful features is its seamless integration with React routers like React Router, Next and Remix. When properly configured, this integration enables browser history features for your form states.
+
+Here's how to integrate Nuqs with React Router:
+
+```tsx
+import { NuqsAdapter } from "nuqs/adapters/react-router/v6"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import App from "./App"
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+])
+
+export function ReactRouter() {
+  return (
+    <NuqsAdapter>
+      <RouterProvider router={router} />
+    </NuqsAdapter>
+  )
+}
+```
+
+#### Enabling History Navigation
+
+By default, Nuqs will replace the current URL when form state changes. To enable full history navigation support, you need to explicitly configure it using `withOptions`:
+
+```tsx fileName="yolo.tsx"
+const [jsonData, setJsonData] = useQueryState(
+  "json",
+  parseAsJson(formSchema.parse)
+    .withDefault({
+      firstName: "",
+      lastName: "",
+      status: "working",
+    })
+    .withOptions({
+      history: "push", // Creates new history entry for each state change
+    }),
+)
+```
+
+When history is enabled, you get these additional features:
+
+- Each form change creates a new browser history entry
+- Users can navigate through form states using browser back/forward buttons
+- Form state changes are preserved in navigation history
+- Perfect for multi-step forms or when you want to track form state changes
+
+### Working with Default Values
+
+Nuqs makes it easy to handle default form states. Instead of manually setting default values in React Hook Form, you can define them directly in your Nuqs query state:
+
+```tsx fileName="yolo.tsx"
+const [jsonData, setJsonData] = useQueryState(
+  "json",
+  parseAsJson(formSchema.parse).withDefault({
+    firstName: "",
+    lastName: "",
+    status: "working",
+  }),
+)
+```
+
+This ensures that your form always has a valid initial state, even when no URL parameters are present. The default values will be used when:
+
+- The page is first loaded without URL parameters
+- The URL parameters are cleared
+- The URL parameters fail validation
+
+The rest of your form implementation remains the same, but now you can be confident that `jsonData` will never be undefined.
+
+### Adding Share Functionality
+
+To make the most of URL-based storage, you can add a share button:
+
+```tsx fileName="yolo.tsx"
+function ShareButton() {
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href)
+    // Add success notification here
+  }
+
+  return <Button onClick={handleShare}>Share Form</Button>
+}
+```
+
+## Conclusion
+
+Nuqs provides a powerful, type-safe solution for form state persistence that's both developer and user-friendly. By leveraging URL parameters, it eliminates the need for complex backend storage while enabling easy sharing and state management.
+
+For more advanced use cases and configuration options, check out the [Nuqs documentation](https://nuqs.47ng.com/).

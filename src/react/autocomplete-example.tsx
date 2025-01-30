@@ -45,12 +45,14 @@ export function AutocompleteExample() {
     <div className="not-prose mt-8 flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <button
+          type="button"
           className="inline-flex h-10 items-center justify-center rounded-md border border-stone-200 bg-white px-4 py-2 text-sm font-medium ring-offset-white transition-colors hover:bg-stone-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
           onClick={() => setLoading((prev) => !prev)}
         >
           Toggle loading
         </button>
         <button
+          type="button"
           className="inline-flex h-10 items-center justify-center rounded-md border border-stone-200 bg-white px-4 py-2 text-sm font-medium ring-offset-white transition-colors hover:bg-stone-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
           onClick={() => setDisbled((prev) => !prev)}
         >
