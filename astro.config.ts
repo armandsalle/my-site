@@ -9,4 +9,5 @@ export default defineConfig({
   site: "https://armand-salle.fr",
   integrations: [mdx(), sitemap(), tailwind(), react()],
   output: "static",
+  trailingSlash: "never",
 })

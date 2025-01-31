@@ -39,3 +39,11 @@ const { title, description, image = "/og.png" } = Astro.props
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+<!-- RSS -->
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="Armand Sallé"
+  href={new URL("rss.xml", Astro.site)}
+/>
