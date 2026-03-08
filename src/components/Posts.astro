@@ -2,12 +2,14 @@
 import { getCollection } from "astro:content"
 import SectionTitle from "./SectionTitle.astro"
 import PostPreview from "./PostPreview.astro"
+import { homeContent } from "../data/home"
 
 const allBlogPosts = await getCollection("post")
 ---
 
 <article class="flex flex-col gap-4">
-  <SectionTitle>Posts</SectionTitle>
+  <SectionTitle>{homeContent.writing.title}</SectionTitle>
+  <p class="max-w-2xl leading-7 text-slate-500">{homeContent.writing.intro}</p>
 
   {
     allBlogPosts

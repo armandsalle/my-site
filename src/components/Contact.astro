@@ -1,17 +1,46 @@
 ---
-import Code from "./Code.astro"
+import { homeContent } from "../data/home"
 ---
 
-<p class="text-sm text-slate-400">
-  <a
-    href="https://benissen.framer.website/"
-    class="rounded-sm underline outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
-    target="_blank">Ben</a
-  > told me to add a good old <Code>mailto:</Code> button at the end of the page
-</p>
-<a
-  href="mailto:armand.salle@gmail.com"
-  class="inline-flex items-center space-x-1.5 rounded-full bg-slate-800 px-6 py-3 text-base font-medium text-white shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+<section
+  class="relative w-full overflow-hidden rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.10),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.12),_transparent_35%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-6 py-8 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.35)] md:px-8 md:py-10"
 >
-  Let's talk
-</a>
+  <div class="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-sky-300/70 to-transparent"></div>
+
+  <div class="relative flex flex-col gap-8 md:gap-10">
+    <div class="flex flex-wrap items-center justify-center gap-3 text-center">
+      <span class="inline-flex items-center rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sky-800 shadow-sm shadow-sky-100/70 backdrop-blur">
+        Open to the right fit
+      </span>
+      <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+        Freelance
+      </span>
+      <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+        Founding roles
+      </span>
+    </div>
+
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-3xl font-semibold tracking-[-0.04em] text-slate-950 md:text-4xl">
+        {homeContent.contact.title}
+      </h2>
+      <p class="mt-4 text-base leading-8 text-slate-600 md:text-lg">
+        {homeContent.contact.body}
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center gap-4">
+      <a
+        href={homeContent.contact.mailto}
+        class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-base font-medium text-white shadow-lg shadow-slate-300/50 outline-none transition hover:-translate-y-0.5 hover:bg-slate-900 focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+      >
+        {homeContent.contact.cta}
+        <i data-lucide="arrow-right" class="size-4"></i>
+      </a>
+
+      <p class="text-sm text-slate-500">
+        Based in Angers. Remote-first. Paris-friendly.
+      </p>
+    </div>
+  </div>
+</section>

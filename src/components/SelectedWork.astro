@@ -1,0 +1,703 @@
+---
+import SectionTitle from "./SectionTitle.astro"
+import {
+  selectedWorkExperiences,
+  selectedWorkVariants,
+  type SelectedWorkExperience,
+  type SelectedWorkVariantId,
+} from "../data/selected-work"
+
+type SelectedWorkColorwayId = "default" | "ocean" | "sand" | "slate"
+
+interface Props {
+  variant: SelectedWorkVariantId
+  colorway?: SelectedWorkColorwayId
+}
+
+const { variant, colorway = "default" } = Astro.props
+const selectedVariant = selectedWorkVariants[variant]
+const featuredExperience = selectedWorkExperiences.find(
+  (experience) => experience.id === selectedVariant.featuredId,
+) as SelectedWorkExperience
+const listExperiences = selectedWorkExperiences.filter(
+  (experience) => experience.id !== selectedVariant.featuredId,
+)
+
+const technicalColorways = {
+  default: {
+    section:
+      "border-sky-100 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.10),_transparent_35%),linear-gradient(180deg,#f8fbff_0%,#f3f4f6_100%)]",
+    pill: "bg-sky-100 text-sky-800",
+    impact: "bg-sky-50 text-slate-900 ring-1 ring-inset ring-sky-100",
+    secondaryOuter:
+      "border-slate-900/5 bg-slate-950 shadow-lg shadow-slate-300/40",
+    secondaryInner:
+      "border border-sky-400/20 bg-[linear-gradient(180deg,rgba(15,23,42,0.98)_0%,rgba(15,23,42,0.92)_100%)] text-slate-100",
+    secondaryMeta: "text-sky-100/80",
+    secondaryEyebrow: "text-slate-400",
+    secondaryNote: "border-white/10 bg-white/5 text-slate-200",
+    secondaryImpact: "border border-sky-400/20 bg-sky-400/10 text-sky-100",
+    secondaryStack: "border border-white/10 bg-white/5 text-slate-200",
+    secondaryLink:
+      "text-sky-100 hover:text-white focus-visible:ring-sky-300 focus-visible:ring-offset-slate-950",
+    secondaryIcon: "text-sky-300",
+    secondaryEmpty: "text-slate-500",
+    featuredShell:
+      "rounded-[1.75rem] border border-slate-900/5 bg-slate-950 p-2 shadow-lg shadow-slate-300/40",
+    featuredInner:
+      "rounded-[1.45rem] border border-sky-400/20 bg-[linear-gradient(180deg,rgba(15,23,42,0.98)_0%,rgba(15,23,42,0.92)_100%)] p-6 text-slate-100 md:p-8",
+    featuredTitle: "text-white",
+    featuredRole: "text-sky-100/80",
+    featuredSummary: "text-slate-300",
+    featuredCounter: "text-slate-500",
+    featuredHighlight: "border-white/10 bg-white/5",
+    featuredHighlightText: "text-slate-200",
+    featuredImpact: "border-sky-400/20 bg-sky-400/10 text-sky-100",
+    featuredLink:
+      "text-sky-100 hover:text-white focus-visible:ring-sky-300 focus-visible:ring-offset-slate-950",
+    featuredIcon: "text-sky-300",
+    featuredEmpty: "text-slate-500",
+    secondaryTitle: "text-white",
+    secondarySummary: "text-slate-200",
+  },
+  ocean: {
+    section:
+      "border-sky-100 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.14),_transparent_35%),linear-gradient(180deg,#f7fbff_0%,#eff4fb_100%)]",
+    pill: "bg-sky-100 text-sky-900",
+    impact: "bg-sky-50 text-slate-900 ring-1 ring-inset ring-sky-100",
+    secondaryOuter:
+      "border-slate-900/5 bg-slate-950 shadow-lg shadow-sky-200/40",
+    secondaryInner:
+      "border border-sky-400/20 bg-[linear-gradient(180deg,rgba(15,23,42,0.98)_0%,rgba(30,41,59,0.94)_100%)] text-slate-100",
+    secondaryMeta: "text-sky-100/80",
+    secondaryEyebrow: "text-sky-200/55",
+    secondaryNote: "border border-white/10 bg-white/5 text-slate-200",
+    secondaryImpact:
+      "border border-sky-300/20 bg-sky-400/10 text-sky-50",
+    secondaryStack: "border border-white/10 bg-white/5 text-slate-100",
+    secondaryLink:
+      "text-sky-100 hover:text-white focus-visible:ring-sky-300 focus-visible:ring-offset-slate-950",
+    secondaryIcon: "text-sky-300",
+    secondaryEmpty: "text-sky-100/40",
+    featuredShell:
+      "rounded-[1.75rem] border border-slate-900/5 bg-slate-950 p-2 shadow-xl shadow-sky-200/40",
+    featuredInner:
+      "rounded-[1.45rem] border border-sky-400/20 bg-[linear-gradient(180deg,rgba(15,23,42,0.98)_0%,rgba(30,41,59,0.94)_100%)] p-6 text-slate-100 md:p-8",
+    featuredTitle: "text-white",
+    featuredRole: "text-sky-100/80",
+    featuredSummary: "text-slate-300",
+    featuredCounter: "text-sky-100/45",
+    featuredHighlight: "border border-white/10 bg-white/5",
+    featuredHighlightText: "text-slate-200",
+    featuredImpact:
+      "border border-sky-300/20 bg-sky-400/10 text-sky-50",
+    featuredLink:
+      "text-sky-100 hover:text-white focus-visible:ring-sky-300 focus-visible:ring-offset-slate-950",
+    featuredIcon: "text-sky-300",
+    featuredEmpty: "text-sky-100/40",
+    secondaryTitle: "text-white",
+    secondarySummary: "text-slate-200",
+  },
+  sand: {
+    section:
+      "border-stone-200 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.10),_transparent_30%),linear-gradient(180deg,#fffdf8_0%,#f6f1e8_100%)]",
+    pill: "bg-amber-100 text-amber-950",
+    impact: "bg-amber-50 text-stone-950 ring-1 ring-inset ring-amber-100",
+    secondaryOuter:
+      "border-stone-200/80 bg-white shadow-lg shadow-amber-100/80",
+    secondaryInner:
+      "border border-stone-200 bg-[linear-gradient(180deg,#fffdfa_0%,#f8f2e8_100%)] text-stone-900",
+    secondaryMeta: "text-stone-700",
+    secondaryEyebrow: "text-stone-500",
+    secondaryNote: "border border-stone-200 bg-white/90 text-stone-700",
+    secondaryImpact: "border border-amber-200/80 bg-amber-50 text-stone-950",
+    secondaryStack: "border border-stone-200 bg-white text-stone-800",
+    secondaryLink:
+      "text-stone-800 hover:text-stone-950 focus-visible:ring-amber-300 focus-visible:ring-offset-white",
+    secondaryIcon: "text-amber-600",
+    secondaryEmpty: "text-stone-300",
+    featuredShell:
+      "rounded-[1.75rem] border border-stone-200/80 bg-white p-2 shadow-xl shadow-amber-100/80",
+    featuredInner:
+      "rounded-[1.45rem] border border-stone-200 bg-[linear-gradient(180deg,#fffdfa_0%,#f8f2e8_100%)] p-6 text-stone-900 md:p-8",
+    featuredTitle: "text-stone-950",
+    featuredRole: "text-stone-700",
+    featuredSummary: "text-stone-700",
+    featuredCounter: "text-stone-500",
+    featuredHighlight: "border border-stone-200 bg-white/90",
+    featuredHighlightText: "text-stone-700",
+    featuredImpact: "border border-amber-200/80 bg-amber-50 text-stone-950",
+    featuredLink:
+      "text-stone-800 hover:text-stone-950 focus-visible:ring-amber-300 focus-visible:ring-offset-white",
+    featuredIcon: "text-amber-600",
+    featuredEmpty: "text-stone-300",
+    secondaryTitle: "text-stone-950",
+    secondarySummary: "text-stone-700",
+  },
+  slate: {
+    section:
+      "border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(71,85,105,0.12),_transparent_35%),linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)]",
+    pill: "bg-slate-200 text-slate-900",
+    impact: "bg-slate-100 text-slate-950 ring-1 ring-inset ring-slate-200",
+    secondaryOuter:
+      "border-slate-900/5 bg-slate-950 shadow-lg shadow-slate-300/35",
+    secondaryInner:
+      "border border-slate-400/20 bg-[linear-gradient(180deg,rgba(15,23,42,0.98)_0%,rgba(30,41,59,0.92)_100%)] text-slate-100",
+    secondaryMeta: "text-slate-100/80",
+    secondaryEyebrow: "text-slate-400",
+    secondaryNote: "border-white/10 bg-white/5 text-slate-100",
+    secondaryImpact: "border border-slate-300/20 bg-slate-300/10 text-slate-100",
+    secondaryStack: "border border-white/10 bg-white/5 text-slate-100",
+    secondaryLink:
+      "text-slate-100 hover:text-white focus-visible:ring-slate-300 focus-visible:ring-offset-slate-950",
+    secondaryIcon: "text-slate-300",
+    secondaryEmpty: "text-slate-500",
+    featuredShell:
+      "rounded-[1.75rem] border border-slate-900/5 bg-slate-950 p-2 shadow-lg shadow-slate-300/35",
+    featuredInner:
+      "rounded-[1.45rem] border border-slate-400/20 bg-[linear-gradient(180deg,rgba(15,23,42,0.98)_0%,rgba(30,41,59,0.92)_100%)] p-6 text-slate-100 md:p-8",
+    featuredTitle: "text-white",
+    featuredRole: "text-slate-100/80",
+    featuredSummary: "text-slate-200",
+    featuredCounter: "text-slate-500",
+    featuredHighlight: "border-white/10 bg-white/5",
+    featuredHighlightText: "text-slate-100",
+    featuredImpact: "border-slate-300/20 bg-slate-300/10 text-slate-100",
+    featuredLink:
+      "text-slate-100 hover:text-white focus-visible:ring-slate-300 focus-visible:ring-offset-slate-950",
+    featuredIcon: "text-slate-300",
+    featuredEmpty: "text-slate-500",
+    secondaryTitle: "text-white",
+    secondarySummary: "text-slate-200",
+  },
+} as const
+
+const themeByVariant = {
+  product: {
+    section:
+      "border-emerald-100 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.08),_transparent_35%),linear-gradient(180deg,#f8faf8_0%,#f4f4f5_100%)]",
+    pill: "bg-emerald-100 text-emerald-800",
+    impact: "bg-emerald-50 text-emerald-900 ring-1 ring-inset ring-emerald-100",
+  },
+  technical: technicalColorways[colorway],
+  trust: {
+    section:
+      "border-amber-100 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.10),_transparent_35%),linear-gradient(180deg,#fffaf2_0%,#f5f5f4_100%)]",
+    pill: "bg-amber-100 text-amber-900",
+    impact: "bg-amber-50 text-stone-900 ring-1 ring-inset ring-amber-100",
+  },
+}[variant]
+
+const secondaryCardThemeByVariant = {
+  product: {
+    outer:
+      "border-emerald-900/5 bg-emerald-950 shadow-lg shadow-emerald-200/35",
+    inner:
+      "border border-emerald-400/20 bg-[linear-gradient(180deg,rgba(2,44,34,0.98)_0%,rgba(6,78,59,0.92)_100%)] text-slate-100",
+    meta: "text-emerald-100/80",
+    eyebrow: "text-emerald-200/55",
+    note: "border-white/10 bg-white/5 text-slate-200",
+    impact: "border border-emerald-300/20 bg-emerald-400/10 text-emerald-50",
+    stack: "border border-white/10 bg-white/5 text-slate-200",
+    link: "text-emerald-100 hover:text-white focus-visible:ring-emerald-300 focus-visible:ring-offset-emerald-950",
+    icon: "text-emerald-300",
+    empty: "text-emerald-200/40",
+    title: "text-white",
+    summary: "text-slate-200",
+  },
+  technical: {
+    outer: technicalColorways[colorway].secondaryOuter,
+    inner: technicalColorways[colorway].secondaryInner,
+    meta: technicalColorways[colorway].secondaryMeta,
+    eyebrow: technicalColorways[colorway].secondaryEyebrow,
+    note: technicalColorways[colorway].secondaryNote,
+    impact: technicalColorways[colorway].secondaryImpact,
+    stack: technicalColorways[colorway].secondaryStack,
+    link: technicalColorways[colorway].secondaryLink,
+    icon: technicalColorways[colorway].secondaryIcon,
+    empty: technicalColorways[colorway].secondaryEmpty,
+    title: technicalColorways[colorway].secondaryTitle,
+    summary: technicalColorways[colorway].secondarySummary,
+  },
+  trust: {
+    outer: "border-stone-900/5 bg-stone-950 shadow-lg shadow-amber-200/35",
+    inner:
+      "border border-amber-200/20 bg-[linear-gradient(180deg,rgba(41,37,36,0.98)_0%,rgba(68,64,60,0.92)_100%)] text-slate-100",
+    meta: "text-amber-50/80",
+    eyebrow: "text-amber-100/45",
+    note: "border-white/10 bg-white/5 text-stone-100",
+    impact: "border border-amber-200/20 bg-amber-300/10 text-amber-50",
+    stack: "border border-white/10 bg-white/5 text-stone-100",
+    link: "text-amber-50 hover:text-white focus-visible:ring-amber-200 focus-visible:ring-offset-stone-950",
+    icon: "text-amber-200",
+    empty: "text-stone-500",
+    title: "text-white",
+    summary: "text-stone-100",
+  },
+}[variant]
+
+const featuredCopy = selectedVariant.entries[featuredExperience.id]
+---
+
+<section
+  class:list={["rounded-[2rem] border p-6 md:p-8", themeByVariant.section]}
+>
+  <div class="mx-auto max-w-5xl">
+    <div class="max-w-3xl">
+      <SectionTitle>{selectedVariant.title}</SectionTitle>
+      <p class="mt-2 text-sm leading-7 text-slate-600 md:text-base">
+        {selectedVariant.intro}
+      </p>
+    </div>
+
+    {
+      variant === "product" ? (
+        <article class="mt-6 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white shadow-sm shadow-slate-200/60">
+          <div class="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_20rem]">
+            <div class="p-6 md:p-8">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  {featuredExperience.contextLabel}
+                </span>
+                <span class="text-sm text-slate-400">
+                  {featuredExperience.period}
+                </span>
+              </div>
+
+              <div class="mt-6 max-w-2xl">
+                <h4 class="text-3xl font-semibold tracking-tight text-slate-950">
+                  {featuredExperience.title}
+                </h4>
+                <p class="mt-2 text-base font-medium text-slate-600">
+                  {featuredExperience.role}
+                </p>
+                <p class="mt-5 text-lg leading-7 text-slate-700">
+                  {featuredCopy.summary}
+                </p>
+              </div>
+
+              <div class="mt-6 grid gap-3 md:grid-cols-2">
+                {featuredCopy.highlights.map((highlight) => (
+                  <div class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-700">
+                    {highlight}
+                  </div>
+                ))}
+              </div>
+
+              <p
+                class:list={[
+                  "mt-6 rounded-2xl px-4 py-4 text-sm leading-6",
+                  themeByVariant.impact,
+                ]}
+              >
+                {featuredCopy.impact}
+              </p>
+            </div>
+
+            <div class="flex flex-col justify-between gap-6 border-t border-slate-100 bg-white/70 p-6 md:p-8 lg:border-l lg:border-t-0">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  Product stack
+                </p>
+                <ul class="mt-4 flex flex-wrap gap-2">
+                  {featuredCopy.stack.map((technology) => (
+                    <li class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                      {technology}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {featuredExperience.link ? (
+                <a
+                  href={featuredExperience.link.href}
+                  target="_blank"
+                  class="inline-flex items-center gap-2 rounded-sm text-sm font-medium text-slate-700 outline-none transition hover:text-slate-950 focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+                >
+                  {featuredExperience.link.label}
+                  <i
+                    data-lucide="external-link"
+                    class="size-4 text-slate-400"
+                  />
+                </a>
+              ) : (
+                <span class="text-sm font-medium text-slate-300">
+                  Private engagement
+                </span>
+              )}
+            </div>
+          </div>
+        </article>
+      ) : variant === "technical" ? (
+        <article
+          class:list={["mt-6 p-2", technicalColorways[colorway].featuredShell]}
+        >
+          <div class:list={[technicalColorways[colorway].featuredInner]}>
+            <div class="flex flex-wrap items-center gap-3">
+              <span
+                class:list={[
+                  "text-xs font-semibold uppercase tracking-[0.14em]",
+                  technicalColorways[colorway].secondaryEyebrow,
+                ]}
+              >
+                {featuredExperience.contextLabel}
+              </span>
+              <span
+                class:list={[
+                  "text-sm",
+                  technicalColorways[colorway].secondaryEyebrow,
+                ]}
+              >
+                {featuredExperience.period}
+              </span>
+            </div>
+
+            <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
+              <div class="max-w-2xl">
+                <h4
+                  class:list={[
+                    "text-3xl font-semibold tracking-tight",
+                    technicalColorways[colorway].featuredTitle,
+                  ]}
+                >
+                  {featuredExperience.title}
+                </h4>
+                <p
+                  class:list={[
+                    "mt-2 text-base font-medium",
+                    technicalColorways[colorway].featuredRole,
+                  ]}
+                >
+                  {featuredExperience.role}
+                </p>
+                <p
+                  class:list={[
+                    "mt-5 text-base leading-7",
+                    technicalColorways[colorway].featuredSummary,
+                  ]}
+                >
+                  {featuredCopy.summary}
+                </p>
+
+                <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                  {featuredCopy.stack.map((technology) => (
+                    <div
+                      class:list={[
+                        "rounded-2xl px-4 py-3 text-sm font-medium",
+                        technicalColorways[colorway].secondaryStack,
+                      ]}
+                    >
+                      {technology}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div class="grid gap-3">
+                {featuredCopy.highlights.map((highlight, index) => (
+                  <div
+                    class:list={[
+                      "rounded-2xl px-4 py-4",
+                      technicalColorways[colorway].featuredHighlight,
+                    ]}
+                  >
+                    <p
+                      class:list={[
+                        "text-xs font-semibold uppercase tracking-[0.14em]",
+                        technicalColorways[colorway].featuredCounter,
+                      ]}
+                    >
+                      0{index + 1}
+                    </p>
+                    <p
+                      class:list={[
+                        "mt-2 text-sm leading-6",
+                        technicalColorways[colorway].featuredHighlightText,
+                      ]}
+                    >
+                      {highlight}
+                    </p>
+                  </div>
+                ))}
+                <p
+                  class:list={[
+                    "rounded-2xl px-4 py-4 text-sm leading-6",
+                    technicalColorways[colorway].featuredImpact,
+                  ]}
+                >
+                  {featuredCopy.impact}
+                </p>
+                {featuredExperience.link ? (
+                  <a
+                    href={featuredExperience.link.href}
+                    target="_blank"
+                    class:list={[
+                      "inline-flex items-center gap-2 rounded-sm text-sm font-medium outline-none transition hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2",
+                      technicalColorways[colorway].featuredLink,
+                    ]}
+                  >
+                    {featuredExperience.link.label}
+                    <i
+                      data-lucide="external-link"
+                      class:list={[
+                        "size-4",
+                        technicalColorways[colorway].featuredIcon,
+                      ]}
+                    />
+                  </a>
+                ) : (
+                  <span
+                    class:list={[
+                      "text-sm font-medium",
+                      technicalColorways[colorway].featuredEmpty,
+                    ]}
+                  >
+                    Private engagement
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </article>
+      ) : (
+        <article class="mt-6 rounded-[1.75rem] border border-stone-200 bg-white shadow-sm shadow-stone-200/70">
+          <div class="border-b border-stone-100 px-6 py-5 md:px-8">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="text-xs font-semibold uppercase tracking-[0.14em] text-stone-400">
+                {featuredExperience.contextLabel}
+              </span>
+              <span class="text-sm text-stone-400">
+                {featuredExperience.period}
+              </span>
+            </div>
+          </div>
+
+          <div class="grid gap-0 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div class="p-6 md:p-8">
+              <h4 class="text-3xl font-semibold tracking-tight text-stone-950">
+                {featuredExperience.title}
+              </h4>
+              <p class="mt-2 text-base font-medium text-stone-600">
+                {featuredExperience.role}
+              </p>
+
+              <div class="mt-6 border-l-2 border-amber-200 pl-4">
+                <p class="text-base leading-7 text-stone-700">
+                  {featuredCopy.summary}
+                </p>
+              </div>
+
+              <div class="mt-6 space-y-3">
+                {featuredCopy.highlights.map((highlight) => (
+                  <div class="rounded-2xl bg-stone-50 px-4 py-4 text-sm leading-6 text-stone-700">
+                    {highlight}
+                  </div>
+                ))}
+              </div>
+
+              <p
+                class:list={[
+                  "mt-6 rounded-2xl px-4 py-4 text-sm leading-6",
+                  themeByVariant.impact,
+                ]}
+              >
+                {featuredCopy.impact}
+              </p>
+            </div>
+
+            <aside class="flex flex-col gap-6 border-t border-stone-100 bg-stone-50/80 p-6 md:p-8 lg:border-l lg:border-t-0">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-stone-400">
+                  Review frame
+                </p>
+                <ul class="mt-4 space-y-3 text-sm leading-7 text-stone-700">
+                  <li>Complex workflow</li>
+                  <li>Operational reliability</li>
+                  <li>AI used with human judgment</li>
+                </ul>
+              </div>
+
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-stone-400">
+                  Stack
+                </p>
+                <ul class="mt-4 flex flex-wrap gap-2">
+                  {featuredCopy.stack.map((technology) => (
+                    <li class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-600 shadow-sm">
+                      {technology}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {featuredExperience.link ? (
+                <a
+                  href={featuredExperience.link.href}
+                  target="_blank"
+                  class="inline-flex items-center gap-2 rounded-sm text-sm font-medium text-stone-700 outline-none transition hover:text-stone-950 focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2"
+                >
+                  {featuredExperience.link.label}
+                  <i
+                    data-lucide="external-link"
+                    class="size-4 text-stone-400"
+                  />
+                </a>
+              ) : (
+                <span class="text-sm font-medium text-stone-400">
+                  Private engagement
+                </span>
+              )}
+            </aside>
+          </div>
+        </article>
+      )
+    }
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      {
+        listExperiences.map((experience, index) => {
+          const entry = selectedVariant.entries[experience.id]
+          return (
+            <article
+              class:list={[
+                "rounded-[1.75rem] border p-2",
+                secondaryCardThemeByVariant.outer,
+              ]}
+            >
+              <div
+                class:list={[
+                  "flex h-full flex-col rounded-[1.45rem] p-6 md:p-7",
+                  secondaryCardThemeByVariant.inner,
+                ]}
+              >
+                <div class="flex flex-wrap items-center gap-3">
+                  <span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    0{index + 1}
+                  </span>
+                  <span
+                    class:list={[
+                      "text-xs font-semibold uppercase tracking-[0.14em]",
+                      secondaryCardThemeByVariant.eyebrow,
+                    ]}
+                  >
+                    {experience.contextLabel}
+                  </span>
+                </div>
+
+                <div class="mt-5">
+                  <h4
+                    class:list={[
+                      "text-2xl font-semibold tracking-tight",
+                      secondaryCardThemeByVariant.title,
+                    ]}
+                  >
+                    {experience.title}
+                  </h4>
+                  <p
+                    class:list={[
+                      "mt-2 text-base font-medium",
+                      secondaryCardThemeByVariant.meta,
+                    ]}
+                  >
+                    {experience.role}
+                  </p>
+                  <p
+                    class:list={[
+                      "mt-1 text-sm",
+                      secondaryCardThemeByVariant.eyebrow,
+                    ]}
+                  >
+                    {experience.period}
+                  </p>
+                </div>
+
+                <p
+                  class:list={[
+                    "mt-5 text-sm leading-7",
+                    secondaryCardThemeByVariant.summary,
+                  ]}
+                >
+                  {entry.summary}
+                </p>
+
+                <div class="mt-5 grid gap-3">
+                  {entry.highlights.map((highlight, highlightIndex) => (
+                    <div
+                      class:list={[
+                        "rounded-2xl px-4 py-4",
+                        secondaryCardThemeByVariant.note,
+                      ]}
+                    >
+                      <p
+                        class:list={[
+                          "text-xs font-semibold uppercase tracking-[0.14em]",
+                          secondaryCardThemeByVariant.eyebrow,
+                        ]}
+                      >
+                        0{highlightIndex + 1}
+                      </p>
+                      <p class="mt-2 text-sm leading-6">{highlight}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <p
+                  class:list={[
+                    "mt-5 rounded-2xl px-4 py-4 text-sm leading-6",
+                    secondaryCardThemeByVariant.impact,
+                  ]}
+                >
+                  {entry.impact}
+                </p>
+
+                <ul class="mt-5 flex flex-wrap gap-2">
+                  {entry.stack.map((technology) => (
+                    <li
+                      class:list={[
+                        "rounded-full px-3 py-1 text-xs font-semibold",
+                        secondaryCardThemeByVariant.stack,
+                      ]}
+                    >
+                      {technology}
+                    </li>
+                  ))}
+                </ul>
+
+                <div class="mt-6">
+                  {experience.link ? (
+                    <a
+                      href={experience.link.href}
+                      target="_blank"
+                      class:list={[
+                        "inline-flex items-center gap-2 rounded-sm text-sm font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-offset-2",
+                        secondaryCardThemeByVariant.link,
+                      ]}
+                    >
+                      {experience.link.label}
+                      <i
+                        data-lucide="external-link"
+                        class:list={[
+                          "size-4",
+                          secondaryCardThemeByVariant.icon,
+                        ]}
+                      />
+                    </a>
+                  ) : (
+                    <span
+                      class:list={[
+                        "text-sm font-medium",
+                        secondaryCardThemeByVariant.empty,
+                      ]}
+                    >
+                      Private engagement
+                    </span>
+                  )}
+                </div>
+              </div>
+            </article>
+          )
+        })
+      }
+    </div>
+  </div>
+</section>

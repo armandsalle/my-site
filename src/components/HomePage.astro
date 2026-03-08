@@ -1,0 +1,66 @@
+---
+import BaseHead from "../components/BaseHead.astro"
+import Contact from "../components/Contact.astro"
+import Header from "../components/Header.astro"
+import Posts from "../components/Posts.astro"
+import SelectedWork from "../components/SelectedWork.astro"
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts"
+
+import "@fontsource/geist-sans/400.css"
+import "@fontsource/geist-sans/500.css"
+import "@fontsource/geist-sans/600.css"
+import "@fontsource/geist-sans/700.css"
+
+type SelectedWorkColorwayId = "default" | "ocean" | "sand" | "slate"
+
+interface Props {
+  selectedWorkColorway?: SelectedWorkColorwayId
+}
+
+const { selectedWorkColorway = "default" } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+
+  <body class="antialiased">
+    <main class="my-16 flex flex-col items-center gap-20">
+      <div class="max-w-3xl px-4">
+        <Header />
+      </div>
+
+      <section class="w-full max-w-6xl px-4">
+        <SelectedWork variant="technical" colorway={selectedWorkColorway} />
+      </section>
+
+      <section class="max-w-3xl px-4">
+        <Posts />
+      </section>
+
+      <section
+        class="mt-4 flex w-full max-w-3xl flex-col items-center gap-4 px-4"
+      >
+        <Contact />
+      </section>
+
+      <footer class="mt-4 text-center text-sm text-gray-400">
+        &copy; {new Date().getFullYear()}
+      </footer>
+
+      <script>
+        import { createIcons, ExternalLink, ArrowRight, Home } from "lucide"
+
+        createIcons({
+          icons: {
+            ExternalLink,
+            ArrowRight,
+            Home,
+          },
+        })
+      </script>
+    </main>
+  </body>
+</html>

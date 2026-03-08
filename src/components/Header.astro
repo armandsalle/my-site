@@ -4,7 +4,7 @@ import ArmandImage from "../assets/armand.jpeg"
 import SocialLinks from "./SocialLinks.astro"
 import SectionTitle from "./SectionTitle.astro"
 import WorkTag from "./WorkTag.astro"
-import Code from "./Code.astro"
+import { homeContent } from "../data/home"
 ---
 
 <header class="flex flex-col gap-8">
@@ -19,13 +19,14 @@ import Code from "./Code.astro"
         src={ArmandImage}
       />
     </div>
-    <div class="space-y-1">
+    <div class="space-y-2">
       <div>
         <h1 class="flex scroll-m-20 text-2xl font-semibold tracking-tight">
-          Armand Sallé
+          {homeContent.hero.name}
         </h1>
-        <div class="text-sm text-slate-500">
-          <p>Founding Product Engineer based in Angers, France.</p>
+        <div class="space-y-1 text-sm text-slate-500">
+          <p class="font-medium text-slate-700">{homeContent.hero.title}</p>
+          <p>{homeContent.hero.location}</p>
         </div>
       </div>
       <WorkTag />
@@ -34,33 +35,22 @@ import Code from "./Code.astro"
 
   <section class="space-y-2">
     <div class="flex flex-col gap-4">
+      <ul class="flex flex-wrap gap-2">
+        {
+          homeContent.hero.details.map((detail) => (
+            <li class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm">
+              {detail}
+            </li>
+          ))
+        }
+      </ul>
+
       <SectionTitle>About</SectionTitle>
-      <p class="leading-7 text-slate-500">
-        I've been a front-end developer for 5 years, working mainly with React,
-        TypeScript, Next.js, and many others. Passionate about what I do, I get
-        fully involved in every project, with a particular focus on design.
-      </p>
-      <p class="leading-7 text-slate-500">
-        My last position was at <a
-          target="_blank"
-          class="inline-flex items-center gap-1 rounded-sm underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
-          href="https://www.dalma.co/"
-          >Dalma <i data-lucide="external-link" class="size-3 text-slate-400"
-          ></i></a
-        >, a pet insurance startup based in Paris, where I was in charge of the
-        front-end development of the customer-facing application, the internal
-        tools, mentoring two junior developers and creating a shared ui kit.<br
-        />The stack was <Code>react</Code>
-        <Code>next</Code>
-        <Code>tailwind</Code>
-        <Code>@radix-ui</Code>
-        <Code>i18n</Code>
-        <Code>@tanstack/react-query</Code>
-        <Code>zod</Code>
-        <Code>trpc</Code>
-        <Code>drizzle</Code>
-        <Code>vite</Code> and <Code>vitest</Code>.
-      </p>
+      {
+        homeContent.about.map((paragraph) => (
+          <p class="max-w-3xl leading-7 text-slate-600">{paragraph}</p>
+        ))
+      }
 
       <SocialLinks />
     </div>
