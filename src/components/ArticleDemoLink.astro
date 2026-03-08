@@ -1,0 +1,39 @@
+---
+interface Props {
+  title: string
+  description: string
+  demoUrl: string
+  sourceUrl: string
+}
+
+const { title, description, demoUrl, sourceUrl } = Astro.props
+---
+
+<div class="not-prose mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+  <div class="space-y-2">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+      Archived demo
+    </p>
+    <h2 class="text-xl font-semibold tracking-tight text-slate-950">{title}</h2>
+    <p class="text-sm leading-6 text-slate-600">{description}</p>
+  </div>
+
+  <div class="mt-4 flex flex-wrap gap-3">
+    <a
+      href={demoUrl}
+      target="_blank"
+      rel="noreferrer"
+      class="inline-flex items-center rounded-md bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+    >
+      Open StackBlitz demo
+    </a>
+    <a
+      href={sourceUrl}
+      target="_blank"
+      rel="noreferrer"
+      class="inline-flex items-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+    >
+      View source snapshot
+    </a>
+  </div>
+</div>

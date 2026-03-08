@@ -5,7 +5,7 @@ pubDate: "2023-07-30"
 ---
 
 import SocialLink from "../../components/SocialLink.astro"
-import { AutocompleteExample } from "../../react/autocomplete-example"
+import ArticleDemoLink from "../../components/ArticleDemoLink.astro"
 
 # Autocomplete component with Shadcn&nbsp;UI
 
@@ -20,4 +20,9 @@ This is a demo of a custom autocomplete component built with [Shadcn ui](https:/
   ></SocialLink>
 </div>
 
-<AutocompleteExample client:load />
+<ArticleDemoLink
+  title="Autocomplete demo on StackBlitz"
+  description="This article now points to a frozen StackBlitz project so the published demo keeps the original behavior while the site dependencies continue to evolve."
+  demoUrl="https://stackblitz.com/github/armandsalle/my-site/tree/main/stackblitz/autocomplete-demo?file=src%2Fmain.tsx"
+  sourceUrl="https://github.com/armandsalle/my-site/tree/main/stackblitz/autocomplete-demo"
+/>

@@ -5,7 +5,7 @@ pubDate: "2024-03-08"
 ---
 
 import SocialLink from "../../components/SocialLink.astro"
-import { PhoneInputShadcnUiPhoneInput } from "../../react/phone-input/index"
+import ArticleDemoLink from "../../components/ArticleDemoLink.astro"
 
 # Phone input number component with Shadcn&nbsp;UI
 
@@ -35,4 +35,9 @@ import enCountries from "i18n-iso-countries/langs/en.json"
 registerLocale(enCountries)
 ```
 
-<PhoneInputShadcnUiPhoneInput client:load />
+<ArticleDemoLink
+  title="Phone input demo on StackBlitz"
+  description="The interactive demo now lives in a dedicated StackBlitz project pinned to the article-era stack, so future site upgrades do not silently rewrite the published example."
+  demoUrl="https://stackblitz.com/github/armandsalle/my-site/tree/main/stackblitz/phone-input-demo?file=src%2Fmain.tsx"
+  sourceUrl="https://github.com/armandsalle/my-site/tree/main/stackblitz/phone-input-demo"
+/>

@@ -1,0 +1,34 @@
+{
+  "name": "phone-input-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@radix-ui/react-icons": "1.3.0",
+    "@radix-ui/react-popover": "1.0.7",
+    "clsx": "2.1.0",
+    "cmdk": "0.2.0",
+    "i18n-iso-countries": "7.10.1",
+    "libphonenumber-js": "1.10.58",
+    "lucide-react": "0.358.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-phone-number-input": "3.3.9",
+    "tailwind-merge": "2.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.2.66",
+    "@types/react-dom": "18.2.22",
+    "@vitejs/plugin-react": "5.1.4",
+    "autoprefixer": "10.4.27",
+    "postcss": "8.5.8",
+    "tailwindcss": "3.4.1",
+    "typescript": "5.4.2",
+    "vite": "7.3.1"
+  }
+}

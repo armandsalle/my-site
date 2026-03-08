@@ -1,38 +1,34 @@
 import { useState } from "react"
-
+import type { Country } from "react-phone-number-input/input"
+import PhoneInput from "react-phone-number-input/input"
 import {
-  type CountryCallingCode,
   type E164Number,
   getExampleNumber,
   isValidPhoneNumber as matchIsValidPhoneNumber,
   parsePhoneNumberWithError,
 } from "libphonenumber-js"
+import examples from "libphonenumber-js/mobile/examples"
 import i18nIsoCountries from "i18n-iso-countries"
 import enCountries from "i18n-iso-countries/langs/en.json"
-import PhoneInput, { type Country } from "react-phone-number-input/input"
-import examples from "libphonenumber-js/mobile/examples"
-import { Input } from "../ui/input"
-
+import { cn } from "../utils/cn"
+import { Input } from "./ui/input"
 import { ComboboxCountryInput } from "./combobox"
 import {
   getCountriesOptions,
   isoToEmoji,
   replaceNumbersWithZeros,
 } from "./helpers"
-import { cn } from "../../utils/utils"
 
 type CountryOption = {
   value: Country
   label: string
-  indicatif: CountryCallingCode
+  indicatif: string
 }
 
 i18nIsoCountries.registerLocale(enCountries)
 
 export const PhoneInputShadcnUiPhoneInput = () => {
   const options = getCountriesOptions()
-
-  // You can use a the country of the phone number to set the default country
   const defaultCountry = (() => {
     try {
       return parsePhoneNumberWithError("+33606060606").country
@@ -61,8 +57,8 @@ export const PhoneInputShadcnUiPhoneInput = () => {
   const isValidPhoneNumber = matchIsValidPhoneNumber(phoneNumber ?? "")
 
   return (
-    <div className="not-prose mt-8 flex flex-col gap-4">
-      <div className="flex gap-2">
+    <div className="mt-8 flex flex-col gap-4">
+      <div className="flex flex-wrap gap-2">
         <ComboboxCountryInput
           value={country}
           onValueChange={onCountryChange}
