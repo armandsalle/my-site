@@ -1,0 +1,664 @@
+---
+title: "Real-time cache invalidation with SSE, tRPC, Redis & BullMQ"
+description: "A practical guide to implementing real-time UI updates using Server-Sent Events, tRPC subscriptions, Redis Pub/Sub, TanStack Query invalidation, and BullMQ job queues."
+pubDate: "2026-03-09"
+---
+
+import { WsVsSse } from "../../react/sse-article/ws-vs-sse"
+import { ArchitectureFlow } from "../../react/sse-article/architecture-flow"
+import { QueryInvalidation } from "../../react/sse-article/query-invalidation"
+import { JobQueue } from "../../react/sse-article/job-queue"
+
+# Real-time cache invalidation with SSE, tRPC, Redis&nbsp;&&nbsp;BullMQ
+
+You have a multi-user app. User A completes a task. User B is staring at a stale list. The classic problem.
+
+Polling works until it doesn't. You're trading latency for bandwidth, and it always feels like a compromise. WebSockets are powerful but often overkill when all you need is **server → client** push.
+
+This article walks through a pattern I've used in production: **SSE + tRPC subscriptions + Redis Pub/Sub + TanStack Query invalidation + BullMQ** for real-time cache invalidation. No WebSocket server, no polling, fully type-safe end-to-end.
+
+## WebSocket vs SSE
+
+Before diving into the implementation, let's clarify why SSE is often the better choice.
+
+<WsVsSse client:visible />
+
+**WebSocket** opens a persistent, bidirectional channel. Both client and server can send messages at any time. Great for chat apps, collaborative editing, or gaming.
+
+**SSE (Server-Sent Events)** is a one-way stream from server to client over plain HTTP. The client opens a connection, and the server pushes events. That's it.
+
+|                    | WebSocket            | SSE                  |
+| ------------------ | -------------------- | -------------------- |
+| **Direction**      | Bidirectional        | Server → Client      |
+| **Protocol**       | Custom (ws://)       | HTTP                 |
+| **Reconnection**   | Manual               | Built-in             |
+| **Binary data**    | ✓                    | Text only            |
+| **Load balancers** | Needs special config | Works out of the box |
+| **Complexity**     | Higher               | Lower                |
+
+For cache invalidation, we only need to tell the client "hey, this data changed, refetch it." That's a server → client message. SSE is perfect.
+
+## The architecture
+
+Here's how every piece fits together. Click the button to see the full flow in action:
+
+<ArchitectureFlow client:visible />
+
+The key insight: **we don't push the data itself through SSE**. We push invalidation events. The client then uses TanStack Query's built-in refetching to get fresh data through the normal API. This keeps the SSE payload tiny and leverages all the caching, deduplication, and retry logic TanStack Query already provides.
+
+## Redis Pub/Sub as the event bus
+
+Why not just emit events in-memory? Because in production you'll have multiple server instances behind a load balancer. User A's mutation hits instance 1, but User B's SSE connection lives on instance 2. Redis Pub/Sub bridges that gap.
+
+### Channel naming strategy
+
+Namespace your channels by environment to avoid cross-contamination:
+
+```typescript
+// invalidation.service.ts
+const getChannel = (entity: string, id?: string) => {
+  const prefix = `${env.NODE_ENV}_invalidate`
+  return id ? `${prefix}:${entity}:${id}` : `${prefix}:${entity}`
+}
+
+// Examples:
+// "prod_invalidate:intervention:42"
+// "dev_invalidate:member:7"
+// "staging_invalidate:global"
+```
+
+### Publish & Subscribe with reference counting
+
+When multiple SSE connections subscribe to the same channel, we don't want to create duplicate Redis subscriptions. Reference counting handles this:
+
+```typescript
+import { Redis } from "ioredis"
+
+const subscribers = new Map<
+  string,
+  {
+    count: number
+    handlers: Set<(message: string) => void>
+  }
+>()
+
+const subClient = new Redis(env.REDIS_URL)
+
+export function subscribe(
+  channel: string,
+  handler: (message: string) => void,
+): () => void {
+  const existing = subscribers.get(channel)
+
+  if (existing) {
+    existing.count++
+    existing.handlers.add(handler)
+  } else {
+    subscribers.set(channel, { count: 1, handlers: new Set([handler]) })
+    subClient.subscribe(channel)
+  }
+
+  // Return unsubscribe function
+  return () => {
+    const sub = subscribers.get(channel)
+    if (!sub) return
+
+    sub.handlers.delete(handler)
+    sub.count--
+
+    if (sub.count === 0) {
+      subscribers.delete(channel)
+      subClient.unsubscribe(channel)
+    }
+  }
+}
+
+// Route messages to handlers
+subClient.on("message", (channel, message) => {
+  const sub = subscribers.get(channel)
+  if (sub) {
+    for (const handler of sub.handlers) {
+      handler(message)
+    }
+  }
+})
+```
+
+### Publishing events
+
+```typescript
+const pubClient = new Redis(env.REDIS_URL)
+
+export function publishInvalidation(
+  entity: string,
+  event: InvalidationEvent,
+  id?: string,
+) {
+  const channel = getChannel(entity, id)
+  pubClient.publish(channel, JSON.stringify(event))
+}
+
+// Usage in a mutation:
+await db.intervention.update({ id: 42, status: "completed" })
+
+publishInvalidation(
+  "intervention",
+  {
+    type: "intervention.updated",
+    interventionId: 42,
+  },
+  "42",
+)
+```
+
+## tRPC Subscriptions via SSE
+
+tRPC v11 supports subscriptions over SSE natively, no WebSocket server needed. The server uses async generators, and the client connects via `httpSubscriptionLink`.
+
+### Server-side: async generator
+
+```typescript
+// trpc/routers/invalidation.ts
+import { z } from "zod"
+import { observable } from "@trpc/server/observable"
+
+const invalidationEventSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("intervention.updated"),
+    interventionId: z.number(),
+  }),
+  z.object({
+    type: z.literal("task.completed"),
+    interventionId: z.number(),
+  }),
+  z.object({
+    type: z.literal("member.assigned"),
+    memberId: z.number(),
+  }),
+])
+
+type InvalidationEvent = z.infer<typeof invalidationEventSchema>
+
+export const invalidationRouter = router({
+  onInvalidate: protectedProcedure
+    .input(
+      z.object({
+        interventionId: z.number().optional(),
+        memberId: z.number().optional(),
+      }),
+    )
+    .subscription(async function* ({ input, signal }) {
+      // Subscribe to relevant Redis channels
+      const channels = ["global"]
+      if (input.interventionId) {
+        channels.push(`intervention:${input.interventionId}`)
+      }
+      if (input.memberId) {
+        channels.push(`member:${input.memberId}`)
+      }
+
+      // Create an async iterator from Redis subscriptions
+      const queue: InvalidationEvent[] = []
+      let resolve: (() => void) | null = null
+
+      const unsubscribers = channels.map((ch) =>
+        subscribe(getChannel(ch), (message) => {
+          const parsed = invalidationEventSchema.safeParse(JSON.parse(message))
+          if (parsed.success) {
+            queue.push(parsed.data)
+            resolve?.()
+          }
+        }),
+      )
+
+      try {
+        while (!signal?.aborted) {
+          if (queue.length > 0) {
+            yield queue.shift()!
+          } else {
+            // Wait for next event or keep-alive timeout
+            await Promise.race([
+              new Promise<void>((r) => {
+                resolve = r
+              }),
+              new Promise<void>((r) => setTimeout(r, 30_000)),
+            ])
+
+            if (queue.length === 0) {
+              // Keep-alive ping (tRPC handles this internally)
+              continue
+            }
+          }
+        }
+      } finally {
+        // Cleanup subscriptions
+        for (const unsub of unsubscribers) {
+          unsub()
+        }
+      }
+    }),
+})
+```
+
+### Client-side: splitLink configuration
+
+Route subscriptions through SSE, everything else through regular HTTP:
+
+```typescript
+// trpc/client.ts
+import { httpBatchLink, httpSubscriptionLink, splitLink } from "@trpc/client"
+
+export const trpc = createTRPCReact<AppRouter>()
+
+export const trpcClient = trpc.createClient({
+  links: [
+    splitLink({
+      condition: (op) => op.type === "subscription",
+      true: httpSubscriptionLink({
+        url: "/api/trpc",
+      }),
+      false: httpBatchLink({
+        url: "/api/trpc",
+      }),
+    }),
+  ],
+})
+```
+
+No WebSocket server, no `ws` dependency, no special proxy configuration. SSE flows over standard HTTP.
+
+## Cache invalidation on the client
+
+This is where it all comes together. A single hook subscribes to the SSE stream and invalidates the right TanStack Query cache entries.
+
+<QueryInvalidation client:visible />
+
+### The `useInvalidationSubscription` hook
+
+```typescript
+// hooks/use-invalidation-subscription.ts
+import { useQueryClient } from "@tanstack/react-query"
+
+export function useInvalidationSubscription(
+  interventionId?: number,
+  memberId?: number,
+) {
+  const queryClient = useQueryClient()
+
+  trpc.invalidation.onInvalidate.useSubscription(
+    { interventionId, memberId },
+    {
+      onData(event) {
+        switch (event.type) {
+          case "intervention.updated":
+            queryClient.invalidateQueries({
+              queryKey: [
+                "intervention",
+                "getById",
+                { id: event.interventionId },
+              ],
+            })
+            queryClient.invalidateQueries({
+              queryKey: ["intervention", "list"],
+            })
+            queryClient.invalidateQueries({
+              queryKey: ["stats"],
+            })
+            break
+
+          case "task.completed":
+            queryClient.invalidateQueries({
+              queryKey: [
+                "task",
+                "list",
+                { interventionId: event.interventionId },
+              ],
+            })
+            queryClient.invalidateQueries({
+              queryKey: [
+                "intervention",
+                "getById",
+                { id: event.interventionId },
+              ],
+            })
+            break
+
+          case "member.assigned":
+            queryClient.invalidateQueries({
+              queryKey: ["member", "getById", { id: event.memberId }],
+            })
+            break
+        }
+      },
+    },
+  )
+}
+```
+
+Then just drop it into your layout:
+
+```tsx
+function InterventionPage({ id }: { id: number }) {
+  // Subscribe to invalidation events for this intervention
+  useInvalidationSubscription(id)
+
+  // These queries will automatically refetch when invalidated
+  const intervention = trpc.intervention.getById.useQuery({ id })
+  const tasks = trpc.task.list.useQuery({ interventionId: id })
+
+  return (
+    <div>
+      <h1>{intervention.data?.title}</h1>
+      <TaskList tasks={tasks.data ?? []} />
+    </div>
+  )
+}
+```
+
+Every query stays fresh without polling. When another user makes a change, the invalidation flows through Redis → SSE → hook → TanStack Query → automatic refetch.
+
+## BullMQ for async job processing
+
+Some operations triggered by a mutation are too heavy to run inline: sending emails, generating PDFs, recalculating denormalized data. BullMQ gives us a reliable job queue backed by Redis with retries, concurrency control, and deduplication.
+
+<JobQueue client:visible />
+
+### Type-safe job registry with Zod
+
+```typescript
+// jobs/registry.ts
+import { z } from "zod"
+
+const jobSchemas = {
+  "email.send": z.object({
+    to: z.string().email(),
+    template: z.string(),
+    data: z.record(z.unknown()),
+  }),
+  "intervention.recalculate": z.object({
+    interventionId: z.number(),
+  }),
+  "pdf.generate": z.object({
+    interventionId: z.number(),
+    type: z.enum(["report", "invoice"]),
+  }),
+} as const
+
+type JobName = keyof typeof jobSchemas
+type JobData<T extends JobName> = z.infer<(typeof jobSchemas)[T]>
+
+export { jobSchemas, type JobName, type JobData }
+```
+
+### Running jobs with deduplication
+
+```typescript
+// jobs/queue.ts
+import { Queue, Worker } from "bullmq"
+import { createHash } from "crypto"
+
+const queue = new Queue("main", {
+  connection: { url: env.REDIS_URL },
+  prefix: `{${env.NODE_ENV}}`, // Environment isolation
+})
+
+export async function runJob<T extends JobName>(
+  name: T,
+  data: JobData<T>,
+  opts?: { deduplicate?: boolean },
+) {
+  const jobId = opts?.deduplicate
+    ? createHash("sha256").update(JSON.stringify({ name, data })).digest("hex")
+    : undefined
+
+  await queue.add(name, data, {
+    jobId,
+    attempts: 3,
+    backoff: { type: "exponential", delay: 1000 },
+    removeOnComplete: 100,
+    removeOnFail: 500,
+  })
+}
+
+// Usage:
+await runJob(
+  "intervention.recalculate",
+  { interventionId: 42 },
+  { deduplicate: true }, // Won't duplicate if same job is pending
+)
+```
+
+### The worker
+
+```typescript
+// jobs/worker.ts
+import { Worker } from "bullmq"
+
+const handlers: Record<JobName, (data: unknown) => Promise<void>> = {
+  "email.send": async (data) => {
+    const parsed = jobSchemas["email.send"].parse(data)
+    await emailService.send(parsed)
+  },
+  "intervention.recalculate": async (data) => {
+    const parsed = jobSchemas["intervention.recalculate"].parse(data)
+    await recalculateInterventionStatus(parsed.interventionId)
+
+    // After recalculation, notify connected clients
+    publishInvalidation(
+      "intervention",
+      {
+        type: "intervention.updated",
+        interventionId: parsed.interventionId,
+      },
+      String(parsed.interventionId),
+    )
+  },
+  "pdf.generate": async (data) => {
+    const parsed = jobSchemas["pdf.generate"].parse(data)
+    await pdfService.generate(parsed)
+  },
+}
+
+const worker = new Worker(
+  "main",
+  async (job) => {
+    const handler = handlers[job.name as JobName]
+    if (!handler) throw new Error(`Unknown job: ${job.name}`)
+    await handler(job.data)
+  },
+  {
+    connection: { url: env.REDIS_URL },
+    prefix: `{${env.NODE_ENV}}`,
+    concurrency: 5,
+  },
+)
+```
+
+Notice how the worker **publishes invalidation events** after completing a job. This closes the loop: background processing feeds back into the real-time system.
+
+## The complete flow, end to end
+
+Let's trace a concrete example. A user completes an intervention:
+
+```typescript
+// 1. tRPC mutation
+const completeIntervention = protectedProcedure
+  .input(z.object({ id: z.number() }))
+  .mutation(async ({ input }) => {
+    // 2. Update the database
+    await db.intervention.update({
+      where: { id: input.id },
+      data: { status: "completed", completedAt: new Date() },
+    })
+
+    // 3. Queue heavy async work
+    await runJob("intervention.recalculate", {
+      interventionId: input.id,
+    })
+
+    // 4. Immediately notify connected clients
+    publishInvalidation(
+      "intervention",
+      {
+        type: "intervention.updated",
+        interventionId: input.id,
+      },
+      String(input.id),
+    )
+  })
+```
+
+What happens next:
+
+1. Redis Pub/Sub broadcasts to all server instances
+2. Each instance checks its SSE subscribers for matching channels
+3. Matching SSE connections receive the event
+4. Client-side hook calls `queryClient.invalidateQueries`
+5. TanStack Query refetches stale queries in the background
+6. UI updates seamlessly, no loading spinner, no page refresh
+
+Meanwhile, BullMQ processes the recalculation job. When it finishes, it publishes another invalidation event, triggering a second round of updates with the fully recalculated data.
+
+## Production considerations
+
+### Graceful shutdown
+
+Order matters. Close connections first, then services, then infrastructure:
+
+```typescript
+async function shutdown() {
+  // 1. Stop accepting new SSE connections
+  server.close()
+
+  // 2. Close existing SSE streams
+  sseConnections.forEach((conn) => conn.close())
+
+  // 3. Stop the BullMQ worker (let active jobs finish)
+  await worker.close()
+
+  // 4. Close Redis connections
+  await pubClient.quit()
+  await subClient.quit()
+
+  // 5. Close database connections
+  await db.$disconnect()
+}
+
+process.on("SIGTERM", shutdown)
+process.on("SIGINT", shutdown)
+```
+
+### Error handling
+
+```typescript
+// Client-side: auto-reconnect is built into SSE
+trpc.invalidation.onInvalidate.useSubscription(
+  { interventionId },
+  {
+    onData(event) {
+      /* ... */
+    },
+    onError(err) {
+      // tRPC's SSE link will auto-reconnect
+      // Optionally report to error tracking
+      Sentry.captureException(err)
+    },
+  },
+)
+```
+
+### Horizontal scaling
+
+Each server instance maintains its own set of SSE connections and Redis subscriptions. Redis Pub/Sub ensures that an event published on any instance reaches all subscribers across all instances. No sticky sessions required.
+
+```
+Instance 1 ──┐                   ┌── SSE → Client A
+Instance 2 ──┼── Redis Pub/Sub ──┼── SSE → Client B
+Instance 3 ──┘                   └── SSE → Client C
+```
+
+## Pros and cons
+
+**Pros:**
+
+- Simple, no WebSocket server or infrastructure needed
+- Standard HTTP, works with every load balancer and CDN
+- Type-safe end-to-end with tRPC + Zod
+- Scalable via Redis Pub/Sub across instances
+- Native retry and backoff with BullMQ
+- Small payloads, only invalidation events, not data
+
+**Cons:**
+
+- Unidirectional only (SSE limitation)
+- Client reconnection needs handling (though EventSource does this automatically)
+- Redis becomes a single point of failure (mitigate with Redis Sentinel or Cluster)
+- More moving parts than simple polling
+- Not suitable for high-frequency bidirectional communication
+
+## Conclusion
+
+This pattern gives you real-time UI updates without the complexity of WebSockets. tRPC subscriptions over SSE, Redis Pub/Sub for cross-instance distribution, TanStack Query for client-side cache management, and BullMQ for heavy async work. Each piece handles one concern well.
+
+Use this when you have a multi-user app where data freshness matters but you don't need bidirectional real-time communication. For chat, collaborative editing, or gaming, reach for WebSockets instead.
+
+## Prompts
+
+Want to implement this in your own project? Here are prompts you can use with an AI assistant to get started:
+
+### SSE + tRPC subscriptions
+
+```text
+I want to add real-time cache invalidation to my tRPC app using
+Server-Sent Events (SSE). Set up:
+1. A tRPC subscription procedure using async generators
+2. httpSubscriptionLink on the client with splitLink to route
+   subscriptions separately from queries/mutations
+3. A discriminated union Zod schema for invalidation events
+4. A React hook that subscribes and calls
+   queryClient.invalidateQueries for each event type
+
+I'm using tRPC v11, TanStack Query v5, and React.
+```
+
+### Redis Pub/Sub event bus
+
+```text
+I need a Redis Pub/Sub service for distributing invalidation events
+across multiple server instances. Implement:
+1. publish() and subscribe() functions with reference counting
+   (avoid duplicate Redis subscriptions for the same channel)
+2. Environment-aware channel naming (prefix with NODE_ENV)
+3. Proper cleanup on unsubscribe
+4. TypeScript types for the event payloads
+
+I'm using ioredis.
+```
+
+### BullMQ job queue
+
+```text
+Set up a type-safe BullMQ job queue with:
+1. A job registry using Zod schemas (each job name maps to a schema)
+2. A runJob() function with optional deduplication (hash job name + data)
+3. A worker that dispatches to the right handler based on job name
+4. Environment-isolated key prefixes
+5. Exponential backoff retry (3 attempts)
+
+After a job completes, it should publish an invalidation event
+via Redis Pub/Sub to notify connected clients.
+```
+
+### Graceful shutdown
+
+```text
+Implement graceful shutdown for a Node.js server that uses:
+- Express/Fastify HTTP server with SSE connections
+- BullMQ workers
+- Redis pub/sub clients (ioredis)
+- Prisma/Drizzle database connection
+
+Shut down in the correct order: stop accepting connections,
+close SSE streams, stop workers (let active jobs finish),
+close Redis, then close the database.
+```
