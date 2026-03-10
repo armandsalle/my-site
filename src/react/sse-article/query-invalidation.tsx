@@ -12,19 +12,19 @@ type Query = {
 
 const INITIAL_QUERIES: Query[] = [
   {
-    key: "intervention.getById",
-    label: "intervention.getById({ id: 42 })",
+    key: "todo.getById",
+    label: "todo.getById({ id: 42 })",
     status: "fresh",
   },
-  { key: "intervention.list", label: "intervention.list()", status: "fresh" },
+  { key: "todo.list", label: "todo.list()", status: "fresh" },
   {
-    key: "member.getById",
-    label: "member.getById({ id: 7 })",
+    key: "user.getById",
+    label: "user.getById({ id: 7 })",
     status: "fresh",
   },
   {
     key: "task.list",
-    label: "task.list({ interventionId: 42 })",
+    label: "task.list({ todoId: 42 })",
     status: "fresh",
   },
   { key: "stats.dashboard", label: "stats.dashboard()", status: "fresh" },
@@ -39,26 +39,22 @@ type EventType = {
 
 const EVENTS: EventType[] = [
   {
-    name: "intervention.updated",
-    label: "Intervention updated",
-    invalidates: [
-      "intervention.getById",
-      "intervention.list",
-      "stats.dashboard",
-    ],
-    payload: '{ type: "intervention.updated", id: 42 }',
+    name: "todo.updated",
+    label: "Todo updated",
+    invalidates: ["todo.getById", "todo.list", "stats.dashboard"],
+    payload: '{ type: "todo.updated", id: 42 }',
   },
   {
-    name: "task.completed",
-    label: "Task completed",
-    invalidates: ["task.list", "intervention.getById", "stats.dashboard"],
-    payload: '{ type: "task.completed", interventionId: 42 }',
+    name: "todo.completed",
+    label: "Todo completed",
+    invalidates: ["task.list", "todo.getById", "stats.dashboard"],
+    payload: '{ type: "todo.completed", todoId: 42 }',
   },
   {
-    name: "member.assigned",
-    label: "Member assigned",
-    invalidates: ["member.getById", "intervention.getById"],
-    payload: '{ type: "member.assigned", memberId: 7 }',
+    name: "user.assigned",
+    label: "User assigned",
+    invalidates: ["user.getById", "todo.getById"],
+    payload: '{ type: "user.assigned", userId: 7 }',
   },
 ]
 

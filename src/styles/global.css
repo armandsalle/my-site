@@ -4,3 +4,13 @@
 @theme {
   --font-sans: "Geist Sans", sans-serif;
 }
+
+/* Prevent prose from overriding expressive-code styles */
+.prose .expressive-code,
+.prose figure[data-rehype-pretty-code-figure] {
+  all: revert;
+}
+
+.prose :where(.expressive-code) * {
+  margin: 0;
+}
