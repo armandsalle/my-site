@@ -1,0 +1,253 @@
+---
+title: "Real-time cache invalidation with SSE, tRPC & Redis"
+description: "A practical guide to implementing real-time UI updates using Server-Sent Events, tRPC subscriptions, Redis Pub/Sub, and TanStack Query invalidation."
+pubDate: "2026-03-09"
+---
+
+import { WsVsSse } from "../../react/sse-article/ws-vs-sse"
+import { ArchitectureFlow } from "../../react/sse-article/architecture-flow"
+import { QueryInvalidation } from "../../react/sse-article/query-invalidation"
+import { JobQueue } from "../../react/sse-article/job-queue"
+import { SseBroadcast } from "../../react/sse-article/sse-broadcast"
+import { TableOfContents } from "../../react/sse-article/table-of-contents"
+import { RefCounting } from "../../react/sse-article/ref-counting"
+import { SseStream } from "../../react/sse-article/sse-stream"
+import { ExhaustivenessCheck } from "../../react/sse-article/exhaustiveness-check"
+import { HorizontalScaling } from "../../react/sse-article/horizontal-scaling"
+
+# Real-time cache invalidation with SSE, tRPC&nbsp;&&nbsp;Redis
+
+You have a multi-user app. User A completes a task. User B is staring at a stale list. The classic problem.
+
+Polling works until it doesn't. You're trading latency for bandwidth, and it always feels like a compromise. WebSockets are powerful but often overkill when all you need is **server → client** push.
+
+This article walks through a pattern I've used in production: **SSE + tRPC subscriptions + Redis Pub/Sub + TanStack Query invalidation** for real-time cache invalidation. No WebSocket server, no polling, fully type-safe end-to-end.
+
+<TableOfContents client:load />
+
+## WebSocket vs SSE
+
+Before diving into the implementation, let's clarify why SSE is often the better choice.
+
+<WsVsSse client:load />
+
+**WebSocket** opens a persistent, bidirectional channel. Both client and server can send messages at any time. Great for chat apps, collaborative editing, or gaming.
+
+**SSE (Server-Sent Events)** is a one-way stream from server to client over plain HTTP. The client opens a connection, and the server pushes events. That's it.
+
+For cache invalidation, we only need to tell the client "hey, this data changed, refetch it." That's a server → client message. SSE is perfect.
+
+The real power shows when one user's action needs to notify **every** connected client. A single mutation fans out through the server to all SSE streams:
+
+<SseBroadcast client:load />
+
+## The architecture
+
+Here's how every piece fits together. Click the button to see the full flow in action:
+
+<ArchitectureFlow client:load />
+
+The key insight: **we don't push the data itself through SSE**. We push invalidation events. The client then uses TanStack Query's built-in refetching to get fresh data through the normal API. This keeps the SSE payload tiny and leverages all the caching, deduplication, and retry logic TanStack Query already provides.
+
+### Tracing the flow
+
+Before diving into each piece, let's walk through a concrete example. A user completes a todo:
+
+```text
+mutation completeTodo(id: 42)
+  → db.update(todo, { status: "completed" })
+  → publish("todo:42", { type: "todo.updated", todoId: 42 })
+```
+
+What happens next:
+
+- **Redis Pub/Sub** broadcasts to all server instances
+- Each instance checks its SSE subscribers for matching channels
+- Matching SSE connections receive the event
+- Client-side hook calls `queryClient.invalidateQueries`
+- TanStack Query refetches stale queries in the background
+- UI updates seamlessly, with no loading spinner and no page refresh
+
+Now let's build each piece.
+
+## Redis Pub/Sub as the event bus
+
+In production you'll have multiple server instances behind a load balancer. User A's mutation hits instance 1, but User B's SSE connection lives on instance 2. In-memory events won't cross that boundary, so Redis Pub/Sub bridges the gap.
+
+### Channel naming
+
+Namespace channels by environment to avoid cross-contamination. A channel looks like `prod_invalidate:todo:42` or `dev_invalidate:user:7`; the prefix isolates environments, and the rest identifies the entity.
+
+### Reference counting
+
+When multiple SSE connections subscribe to the same channel, we don't want duplicate Redis subscriptions. A reference counter tracks how many listeners exist per channel and only subscribes/unsubscribes at the Redis level when the count transitions between 0 and 1.
+
+<RefCounting client:load />
+
+```text
+subscribe("todo:42", handler)
+  → if refCount was 0 → redis.subscribe("todo:42")
+  → refCount++
+
+unsubscribe("todo:42", handler)
+  → refCount--
+  → if refCount is 0 → redis.unsubscribe("todo:42")
+```
+
+### Publishing events
+
+Publishing is straightforward: serialize the event and push it to the right channel:
+
+```text
+publish("todo:42", { type: "todo.updated", todoId: 42 })
+  → redis.publish(channel, JSON.stringify(event))
+```
+
+## tRPC subscriptions via SSE
+
+tRPC v11 supports subscriptions over SSE natively, with no WebSocket server needed. The server uses async generators, and the client connects via `httpSubscriptionLink`.
+
+### Defining events with Zod
+
+Every event flowing through the system is validated at runtime with a discriminated union. This gives us a single source of truth for both runtime validation and TypeScript types:
+
+```text
+InvalidationEvent = discriminatedUnion("type", [
+  { type: "todo.updated",   todoId: number }
+  { type: "todo.completed", todoId: number }
+  { type: "user.assigned",  userId: number }
+])
+```
+
+Because `InvalidationEvent` is a discriminated union, TypeScript narrows the type when you `switch` on `event.type`. Add a `default` branch with `never` to catch unhandled variants at compile time. If you add a new event to the schema but forget to handle it, TypeScript will error:
+
+<ExhaustivenessCheck client:load />
+
+### Server-side: async generator
+
+The subscription procedure creates an async generator that bridges Redis Pub/Sub into the SSE stream. Each connected client gets its own generator, but they share Redis subscriptions via the reference counting layer above.
+
+```text
+subscription onInvalidate({ todoId?, userId? })
+  → subscribe to relevant channels (global, todo:id, user:id)
+  → on redis message → validate with Zod → yield to SSE stream
+  → on client disconnect → unsubscribe from all channels
+```
+
+The generator `yield`s validated events one at a time. tRPC serializes them as SSE and streams them to the client. When the client disconnects, the `finally` block cleans up Redis subscriptions.
+
+### Client-side: splitLink
+
+Route subscriptions through SSE, everything else through regular HTTP:
+
+```text
+trpc.createClient({
+  links: splitLink(
+    subscriptions → httpSubscriptionLink("/api/trpc")
+    everything else → httpBatchLink("/api/trpc")
+  )
+})
+```
+
+No WebSocket server, no `ws` dependency, no special proxy configuration. SSE flows over standard HTTP. Here's what the browser actually receives on the wire:
+
+<SseStream client:load />
+
+## Cache invalidation on the client
+
+This is where it all comes together. A single hook subscribes to the SSE stream and invalidates the right TanStack Query cache entries.
+
+<QueryInvalidation client:load />
+
+### The invalidation hook
+
+```text
+useInvalidationSubscription(todoId?, userId?)
+  → subscribe to SSE via trpc
+  → on event:
+      "todo.updated"   → invalidate(todo.getById, todo.list, stats)
+      "todo.completed"  → invalidate(task.list, todo.getById)
+      "user.assigned"   → invalidate(user.getById)
+```
+
+Then drop it into any page. Every query stays fresh without polling. When another user makes a change, the invalidation flows through Redis → SSE → hook → TanStack Query → automatic refetch.
+
+## Production considerations
+
+### Graceful shutdown
+
+Order matters. Stop accepting connections first, close SSE streams, then close Redis and the database. If you're running BullMQ workers, let active jobs finish before closing.
+
+```text
+shutdown()
+  → server.close()
+  → close all SSE connections
+  → redis.quit()
+  → db.disconnect()
+```
+
+### Error handling
+
+tRPC's SSE link will auto-reconnect on connection drops. Log errors to your monitoring service (Sentry, etc.) for visibility, but the client recovers automatically.
+
+### Horizontal scaling
+
+Each server instance maintains its own set of SSE connections and Redis subscriptions. Redis Pub/Sub ensures that an event published on any instance reaches all subscribers across all instances. No sticky sessions required.
+
+<HorizontalScaling client:load />
+
+## When to use this
+
+**Reach for this pattern when:**
+
+- Your app is multi-user and data freshness matters
+- You only need server → client push (dashboards, admin panels, task boards)
+- You want type-safety across the entire event pipeline
+- You're already using tRPC and TanStack Query
+- You need to scale across multiple server instances
+
+**Reach for WebSockets instead when:**
+
+- You need bidirectional real-time communication (chat, collaborative editing, gaming)
+- You're sending high-frequency updates (60fps state sync)
+- You need binary data transfer
+
+**Keep it simple with polling when:**
+
+- You have a single-user app or data freshness isn't critical
+- Your update frequency is predictable (e.g. every 30s is fine)
+- You don't want the operational overhead of Redis
+
+## Conclusion
+
+This pattern gives you real-time UI updates without the complexity of WebSockets. tRPC subscriptions over SSE, Redis Pub/Sub for cross-instance distribution, and TanStack Query for client-side cache management. Each piece handles one concern well, and they compose cleanly.
+
+---
+
+## Going further: async jobs with BullMQ
+
+Some mutations trigger work that's too heavy to run inline, like sending emails, generating reports, or recalculating denormalized data. Instead of blocking the mutation, offload it to a job queue and let it **feed back into the invalidation system** when it's done.
+
+<JobQueue client:load />
+
+### The pattern
+
+```text
+mutation completeTodo(id)
+  → db.update(todo)
+  → enqueue("todo.recalculate", { todoId: id })    ← async, returns immediately
+  → publish("todo.updated", { todoId: id })         ← instant invalidation
+
+worker processes "todo.recalculate"
+  → heavy computation...
+  → publish("todo.updated", { todoId: id })         ← second invalidation with fresh data
+```
+
+The key: after completing a job, the worker **publishes an invalidation event**. This closes the loop. Background processing feeds back into the real-time system, and every connected client gets updated automatically.
+
+### Job queue essentials
+
+- **Type-safe registry**: define a Zod schema per job name. `runJob("email.send", data)` is fully typed, so wrong payload shapes are caught at compile time.
+- **Deduplication**: hash the job name + data to generate a deterministic job ID. Same job won't run twice.
+- **Retry with backoff**: 3 attempts, exponential backoff. BullMQ handles this out of the box.
+- **Environment isolation**: prefix queue keys with `NODE_ENV` so dev and prod never collide.
