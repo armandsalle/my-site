@@ -194,7 +194,7 @@ export function RefCounting() {
       </div>
 
       <p className="mt-4 text-center text-xs text-slate-500">
-        Click clients to connect/disconnect — Redis only subscribes when the
+        Click clients to connect/disconnect. Redis only subscribes when the
         first client connects and unsubscribes when the last one leaves
       </p>
     </div>

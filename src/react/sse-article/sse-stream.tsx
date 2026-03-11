@@ -82,7 +82,7 @@ export function SseStream() {
           {
             id: nextEventId++,
             lines: [
-              `/* reconnected — GET /api/trpc/onInvalidate */`,
+              `/* reconnected: GET /api/trpc/onInvalidate */`,
               `:ok`,
               ``,
             ],
@@ -206,7 +206,7 @@ export function SseStream() {
       </div>
 
       <p className="mt-3 text-center text-xs text-slate-500">
-        What your browser actually receives — plain text over HTTP, one event at
+        What your browser actually receives: plain text over HTTP, one event at
         a time
       </p>
     </div>

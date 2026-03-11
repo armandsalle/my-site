@@ -9,7 +9,17 @@ const allBlogPosts = await getCollection("post")
 
 <article class="flex flex-col gap-4">
   <SectionTitle>{homeContent.writing.title}</SectionTitle>
-  <p class="max-w-2xl leading-7 text-slate-500">{homeContent.writing.intro}</p>
+  <div class="flex flex-col gap-2">
+    <p class="max-w-2xl leading-7 text-slate-500">{homeContent.writing.intro}</p>
+    <a
+      class="inline-flex w-fit items-center rounded-full border border-slate-300 px-3 py-1 text-sm font-medium text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+      href="/rss.xml"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      RSS feed
+    </a>
+  </div>
 
   {
     allBlogPosts

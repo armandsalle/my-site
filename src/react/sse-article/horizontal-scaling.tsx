@@ -291,7 +291,7 @@ export function HorizontalScaling() {
       </div>
 
       <p className="mt-2 text-center text-xs text-slate-500">
-        An event from any instance reaches every client via Redis Pub/Sub — no
+        An event from any instance reaches every client via Redis Pub/Sub, with no
         sticky sessions needed
       </p>
     </div>

@@ -66,17 +66,17 @@ What happens next:
 - Matching SSE connections receive the event
 - Client-side hook calls `queryClient.invalidateQueries`
 - TanStack Query refetches stale queries in the background
-- UI updates seamlessly — no loading spinner, no page refresh
+- UI updates seamlessly, with no loading spinner and no page refresh
 
 Now let's build each piece.
 
 ## Redis Pub/Sub as the event bus
 
-In production you'll have multiple server instances behind a load balancer. User A's mutation hits instance 1, but User B's SSE connection lives on instance 2. In-memory events won't cross that boundary — Redis Pub/Sub bridges the gap.
+In production you'll have multiple server instances behind a load balancer. User A's mutation hits instance 1, but User B's SSE connection lives on instance 2. In-memory events won't cross that boundary, so Redis Pub/Sub bridges the gap.
 
 ### Channel naming
 
-Namespace channels by environment to avoid cross-contamination. A channel looks like `prod_invalidate:todo:42` or `dev_invalidate:user:7` — the prefix isolates environments, the rest identifies the entity.
+Namespace channels by environment to avoid cross-contamination. A channel looks like `prod_invalidate:todo:42` or `dev_invalidate:user:7`; the prefix isolates environments, and the rest identifies the entity.
 
 ### Reference counting
 
@@ -96,7 +96,7 @@ unsubscribe("todo:42", handler)
 
 ### Publishing events
 
-Publishing is straightforward — serialize the event and push it to the right channel:
+Publishing is straightforward: serialize the event and push it to the right channel:
 
 ```text
 publish("todo:42", { type: "todo.updated", todoId: 42 })
@@ -105,7 +105,7 @@ publish("todo:42", { type: "todo.updated", todoId: 42 })
 
 ## tRPC subscriptions via SSE
 
-tRPC v11 supports subscriptions over SSE natively — no WebSocket server needed. The server uses async generators, and the client connects via `httpSubscriptionLink`.
+tRPC v11 supports subscriptions over SSE natively, with no WebSocket server needed. The server uses async generators, and the client connects via `httpSubscriptionLink`.
 
 ### Defining events with Zod
 
@@ -119,7 +119,7 @@ InvalidationEvent = discriminatedUnion("type", [
 ])
 ```
 
-Because `InvalidationEvent` is a discriminated union, TypeScript narrows the type when you `switch` on `event.type`. Add a `default` branch with `never` to catch unhandled variants at compile time — if you add a new event to the schema but forget to handle it, TypeScript will error:
+Because `InvalidationEvent` is a discriminated union, TypeScript narrows the type when you `switch` on `event.type`. Add a `default` branch with `never` to catch unhandled variants at compile time. If you add a new event to the schema but forget to handle it, TypeScript will error:
 
 <ExhaustivenessCheck client:load />
 
@@ -226,7 +226,7 @@ This pattern gives you real-time UI updates without the complexity of WebSockets
 
 ## Going further: async jobs with BullMQ
 
-Some mutations trigger work that's too heavy to run inline — sending emails, generating reports, recalculating denormalized data. Instead of blocking the mutation, offload it to a job queue and let it **feed back into the invalidation system** when it's done.
+Some mutations trigger work that's too heavy to run inline, like sending emails, generating reports, or recalculating denormalized data. Instead of blocking the mutation, offload it to a job queue and let it **feed back into the invalidation system** when it's done.
 
 <JobQueue client:load />
 
@@ -243,11 +243,11 @@ worker processes "todo.recalculate"
   → publish("todo.updated", { todoId: id })         ← second invalidation with fresh data
 ```
 
-The key: after completing a job, the worker **publishes an invalidation event**. This closes the loop — background processing feeds back into the real-time system, and every connected client gets updated automatically.
+The key: after completing a job, the worker **publishes an invalidation event**. This closes the loop. Background processing feeds back into the real-time system, and every connected client gets updated automatically.
 
 ### Job queue essentials
 
-- **Type-safe registry**: define a Zod schema per job name. `runJob("email.send", data)` is fully typed — wrong payload shapes are caught at compile time.
+- **Type-safe registry**: define a Zod schema per job name. `runJob("email.send", data)` is fully typed, so wrong payload shapes are caught at compile time.
 - **Deduplication**: hash the job name + data to generate a deterministic job ID. Same job won't run twice.
 - **Retry with backoff**: 3 attempts, exponential backoff. BullMQ handles this out of the box.
 - **Environment isolation**: prefix queue keys with `NODE_ENV` so dev and prod never collide.

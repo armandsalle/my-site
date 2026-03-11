@@ -160,8 +160,8 @@ export function ExhaustivenessCheck() {
 
       <p className="mt-4 text-center text-xs text-slate-500">
         {hasNewVariant
-          ? "The new variant has no matching case — TypeScript catches it at compile time"
-          : "All variants are handled — click the button to add a new one and see what happens"}
+          ? "The new variant has no matching case, and TypeScript catches it at compile time"
+          : "All variants are handled. Click the button to add a new one and see what happens"}
       </p>
     </div>
   )
