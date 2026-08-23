@@ -18,12 +18,78 @@ interface Props {
 }
 
 const { selectedWorkColorway = "default" } = Astro.props
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://armand-salle.fr/#person",
+      name: "Armand Sallé",
+      url: "https://armand-salle.fr/",
+      image: "https://armand-salle.fr/og.png",
+      description: SITE_DESCRIPTION,
+      jobTitle: "Founding and Senior Product Engineer",
+      email: "mailto:armand.salle@gmail.com",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Angers",
+        addressRegion: "Pays de la Loire",
+        addressCountry: "FR",
+      },
+      sameAs: [
+        "https://github.com/armandsalle",
+        "https://www.linkedin.com/in/armand-sall%C3%A9-9550a613a/",
+        "https://bsky.app/profile/armand-salle.bsky.social",
+      ],
+      worksFor: { "@id": "https://armand-salle.fr/#organization" },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://armand-salle.fr/#organization",
+      name: "Armand Sallé Product Engineering",
+      url: "https://armand-salle.fr/",
+      description:
+        "Independent product engineering practice for thoughtful B2B and B2C software.",
+      founder: { "@id": "https://armand-salle.fr/#person" },
+      contactPoint: {
+        "@type": "ContactPoint",
+        email: "armand.salle@gmail.com",
+        contactType: "professional enquiries",
+        availableLanguage: ["English", "French"],
+      },
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Angers",
+        addressRegion: "Pays de la Loire",
+        addressCountry: "FR",
+      },
+      sameAs: [
+        "https://github.com/armandsalle",
+        "https://www.linkedin.com/in/armand-sall%C3%A9-9550a613a/",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://armand-salle.fr/#website",
+      url: "https://armand-salle.fr/",
+      name: "Armand Sallé",
+      description: SITE_DESCRIPTION,
+      author: { "@id": "https://armand-salle.fr/#person" },
+    },
+  ],
+}
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <BaseHead
+      title={SITE_TITLE}
+      description={SITE_DESCRIPTION}
+      markdownPath="/index.md"
+      structuredData={structuredData}
+    />
   </head>
 
   <body class="antialiased">
@@ -46,8 +112,14 @@ const { selectedWorkColorway = "default" } = Astro.props
         <Contact />
       </section>
 
-      <footer class="mt-4 text-center text-sm text-gray-400">
-        &copy; {new Date().getFullYear()}
+      <footer
+        class="mt-4 flex flex-wrap justify-center gap-4 text-center text-sm text-gray-400"
+      >
+        <span>&copy; {new Date().getFullYear()}</span>
+        <a class="hover:text-slate-700" href="/about">About</a>
+        <a class="hover:text-slate-700" href="/contact">Contact</a>
+        <a class="hover:text-slate-700" href="/privacy">Privacy</a>
+        <a class="hover:text-slate-700" href="/developers">Developers</a>
       </footer>
 
       <script>

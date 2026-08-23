@@ -1,0 +1,55 @@
+---
+import SitePage from "../layouts/SitePage.astro"
+---
+
+<SitePage
+  title="Developers"
+  description="Machine-readable resources, content negotiation, authentication status, CLI access, and support for armand-salle.fr."
+  markdownPath="/developers.md"
+>
+  <h1>Developer information</h1>
+
+  <p>
+    This website is a public, read-only portfolio and technical blog. It does
+    not currently expose a product API, issue API keys, accept write operations,
+    or provide an authenticated sandbox.
+  </p>
+
+  <h2>Quickstart</h2>
+
+  <p>Fetch the agent index:</p>
+  <pre><code>curl -fsS https://armand-salle.fr/llms.txt</code></pre>
+
+  <p>Request the homepage as Markdown:</p>
+  <pre><code>curl -fsS -H 'Accept: text/markdown' https://armand-salle.fr/</code></pre>
+
+  <p>Discover public HTML routes through the sitemap:</p>
+  <pre><code>curl -fsS https://armand-salle.fr/sitemap-index.xml</code></pre>
+
+  <h2>Authentication and sandbox</h2>
+
+  <p>
+    No API key is required because there is no public application API. All
+    documented machine-readable resources are public and read only. The public
+    site itself is the safe environment for retrieval tests. Automated clients
+    should use ordinary conditional requests, respect HTTP status codes, and
+    avoid aggressive request rates.
+  </p>
+
+  <h2>CLI</h2>
+
+  <p>
+    The repository includes a small zero-dependency CLI for machine-readable
+    profile and resource discovery. Until a registry package is published, run
+    it from the official GitHub repository:
+  </p>
+  <pre><code>npx github:armandsalle/my-site profile --json</code></pre>
+
+  <h2>Support</h2>
+
+  <p>
+    For a broken public resource or an integration question, email
+    <a href="mailto:armand.salle@gmail.com">armand.salle@gmail.com</a> and include
+    the URL, request headers, response status, and a minimal reproduction.
+  </p>
+</SitePage>

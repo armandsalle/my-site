@@ -1,0 +1,19 @@
+---
+import SitePage from "../layouts/SitePage.astro"
+
+Astro.response.status = 404
+---
+
+<SitePage
+  title="404: Page not found"
+  description="The requested resource does not exist."
+  noindex
+>
+  <h1>Page not found</h1>
+  <p>
+    The requested resource does not exist. Return to the <a href="/">homepage</a
+    >
+    or consult the <a href="/sitemap-index.xml">sitemap</a> and
+    <a href="/llms.txt">agent index</a> for available resources.
+  </p>
+</SitePage>

@@ -2,10 +2,15 @@
   "name": "my-site",
   "type": "module",
   "version": "0.0.1",
+  "bin": {
+    "armand-salle": "bin/armand-salle.js"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
+    "test": "astro check && astro build && node --test tests/*.test.mjs",
+    "verify": "pnpm test",
     "preview": "astro preview",
     "astro": "astro"
   },

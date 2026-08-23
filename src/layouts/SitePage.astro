@@ -1,0 +1,39 @@
+---
+import BaseHead from "../components/BaseHead.astro"
+
+import "@fontsource/geist-sans/400.css"
+import "@fontsource/geist-sans/500.css"
+import "@fontsource/geist-sans/600.css"
+import "@fontsource/geist-sans/700.css"
+
+interface Props {
+  title: string
+  description: string
+  markdownPath?: string
+  noindex?: boolean
+}
+
+const { title, description, markdownPath, noindex = false } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`${title} | Armand Sallé`}
+      description={description}
+      markdownPath={markdownPath}
+    />
+    {noindex && <meta name="robots" content="noindex" />}
+  </head>
+  <body class="antialiased">
+    <main class="my-16 px-4">
+      <article
+        class="prose prose-slate prose-headings:tracking-tight prose-p:leading-7 prose-a:text-slate-700 mx-auto max-w-3xl rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.25)] md:p-10"
+      >
+        <a class="text-sm font-medium no-underline" href="/">Back to home</a>
+        <slot />
+      </article>
+    </main>
+  </body>
+</html>
