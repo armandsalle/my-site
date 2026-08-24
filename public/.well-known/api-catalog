@@ -1,0 +1,29 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://armand-salle.fr/api",
+      "item": [
+        {
+          "href": "https://armand-salle.fr/api/profile.json",
+          "type": "application/json"
+        },
+        {
+          "href": "https://armand-salle.fr/api/resources.json",
+          "type": "application/json"
+        }
+      ],
+      "service-desc": [
+        {
+          "href": "https://armand-salle.fr/openapi.json",
+          "type": "application/vnd.oai.openapi+json;version=3.1"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://armand-salle.fr/developers",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

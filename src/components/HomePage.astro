@@ -77,6 +77,57 @@ const structuredData = {
       description: SITE_DESCRIPTION,
       author: { "@id": "https://armand-salle.fr/#person" },
     },
+    {
+      "@type": "ProfilePage",
+      "@id": "https://armand-salle.fr/#profile-page",
+      url: "https://armand-salle.fr/",
+      name: "Armand Sallé, Founding and Senior Product Engineer",
+      mainEntity: { "@id": "https://armand-salle.fr/#person" },
+      isPartOf: { "@id": "https://armand-salle.fr/#website" },
+    },
+    {
+      "@type": "Service",
+      "@id": "https://armand-salle.fr/#product-engineering-service",
+      name: "Senior product engineering",
+      description:
+        "Selected freelance and founding engineering work for B2B and B2C products with complex operational workflows.",
+      serviceType: "Product engineering",
+      provider: { "@id": "https://armand-salle.fr/#person" },
+      areaServed: [
+        { "@type": "Country", name: "France" },
+        { "@type": "Place", name: "Remote" },
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://armand-salle.fr/#faq",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What kind of work does Armand Sallé do?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Armand works on B2B and B2C products, especially operational workflows, internal tools, frontend systems, delivery practices, and practical AI assisted engineering.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Where is Armand Sallé based?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Armand is based in Angers, France. He works remotely and can collaborate regularly with teams in Paris.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How can someone contact Armand Sallé?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "The preferred public contact method is email at armand.salle@gmail.com.",
+          },
+        },
+      ],
+    },
   ],
 }
 ---

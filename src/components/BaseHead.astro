@@ -34,6 +34,16 @@ const {
 <meta name="title" content={title} />
 <meta name="description" content={description} />
 <link rel="describedby" href="/llms.txt" type="text/markdown" />
+<link
+  rel="service-desc"
+  href="/openapi.json"
+  type="application/vnd.oai.openapi+json;version=3.1"
+/>
+<link
+  rel="api-catalog"
+  href="/.well-known/api-catalog"
+  type="application/linkset+json"
+/>
 {
   markdownPath && (
     <link rel="alternate" href={markdownPath} type="text/markdown" />

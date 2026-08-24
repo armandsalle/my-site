@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemaMap xmlns="https://schema.org/SchemaMap">
+  <schemaFeed>
+    <url>https://armand-salle.fr/rss.xml</url>
+    <format>application/rss+xml</format>
+  </schemaFeed>
+</schemaMap>

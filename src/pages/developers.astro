@@ -3,16 +3,17 @@ import SitePage from "../layouts/SitePage.astro"
 ---
 
 <SitePage
-  title="Developers"
-  description="Machine-readable resources, content negotiation, authentication status, CLI access, and support for armand-salle.fr."
+  title="armand-salle.fr developer resources"
+  description="Public API, OpenAPI contract, machine-readable resources, content negotiation, CLI access, and support for armand-salle.fr."
   markdownPath="/developers.md"
 >
-  <h1>Developer information</h1>
+  <h1>armand-salle.fr developer resources</h1>
 
   <p>
-    This website is a public, read-only portfolio and technical blog. It does
-    not currently expose a product API, issue API keys, accept write operations,
-    or provide an authenticated sandbox.
+    This website is a public portfolio and technical blog. It exposes a small,
+    unauthenticated, read only API for canonical profile data and resource
+    discovery. It does not accept write operations, issue API keys, or provide
+    an authenticated product sandbox.
   </p>
 
   <h2>Quickstart</h2>
@@ -26,14 +27,34 @@ import SitePage from "../layouts/SitePage.astro"
   <p>Discover public HTML routes through the sitemap:</p>
   <pre><code>curl -fsS https://armand-salle.fr/sitemap-index.xml</code></pre>
 
+  <p>Fetch the structured professional profile:</p>
+  <pre><code>curl -fsS https://armand-salle.fr/api/profile.json</code></pre>
+
+  <h2>API contract and discovery</h2>
+
+  <p>
+    The <a href="/openapi.json">OpenAPI 3.1 contract</a> describes every public operation,
+    parameter, and response schema. Agents can discover the API through the <a
+      href="/.well-known/api-catalog">RFC 9727 API catalog</a
+    >, the
+    <a href="/.well-known/ai-catalog.json">ARD AI catalog</a>, or the
+    <a href="/.well-known/agent-skills/index.json">agent skills index</a>. A
+    consolidated list is available from
+    <a href="/api/resources.json">the resource endpoint</a>.
+  </p>
+
+  <p>
+    Add <code>?mode=agent</code> to the homepage URL for a single structured entry
+    point containing the profile, endpoints, authentication status, and usage guidance.
+  </p>
+
   <h2>Authentication and sandbox</h2>
 
   <p>
-    No API key is required because there is no public application API. All
-    documented machine-readable resources are public and read only. The public
-    site itself is the safe environment for retrieval tests. Automated clients
-    should use ordinary conditional requests, respect HTTP status codes, and
-    avoid aggressive request rates.
+    No API key is required. Every documented endpoint is public, deterministic,
+    and read only. There are no write actions, so a sandbox is neither required
+    nor advertised. Automated clients should use ordinary conditional requests,
+    respect HTTP status codes, and avoid aggressive request rates.
   </p>
 
   <h2>CLI</h2>
@@ -44,6 +65,19 @@ import SitePage from "../layouts/SitePage.astro"
     it from the official GitHub repository:
   </p>
   <pre><code>npx github:armandsalle/my-site profile --json</code></pre>
+
+  <h2>Agent assets and source</h2>
+
+  <p>
+    The public source repository includes
+    <a href="https://github.com/armandsalle/my-site/blob/main/AGENTS.md"
+      >repository instructions for coding agents</a
+    > and a
+    <a href="https://github.com/armandsalle/my-site/blob/main/SKILL.md"
+      >retrieval skill</a
+    >. These files document safe contribution rules, canonical data sources,
+    when to use the site, and how to cite its content.
+  </p>
 
   <h2>Support</h2>
 

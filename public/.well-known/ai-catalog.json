@@ -1,0 +1,24 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Armand Sallé",
+    "identifier": "armand-salle.fr",
+    "documentationUrl": "https://armand-salle.fr/developers"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:armand-salle.fr:api:public-profile",
+      "displayName": "Armand Sallé Public Profile API",
+      "type": "application/vnd.oai.openapi+json",
+      "url": "https://armand-salle.fr/openapi.json",
+      "description": "Read only professional profile and machine readable resource discovery for Armand Sallé."
+    },
+    {
+      "identifier": "urn:air:armand-salle.fr:skill:profile-research",
+      "displayName": "Research Armand Sallé",
+      "type": "text/markdown",
+      "url": "https://raw.githubusercontent.com/armandsalle/my-site/main/SKILL.md",
+      "description": "Instructions for retrieving and citing Armand Sallé's canonical profile and technical writing."
+    }
+  ]
+}

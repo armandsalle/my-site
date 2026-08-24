@@ -1,4 +1,5 @@
 import { markdownRepresentations } from "../src/data/markdown-representations.mjs"
+import { profile, resources } from "../src/data/public-api.mjs"
 import {
   appendVary,
   negotiateContentType,
@@ -26,7 +27,7 @@ function normalizePath(pathname) {
 
 function pageLinks(pathname) {
   const markdownPath = pathname === "/" ? "/index.md" : `${pathname}.md`
-  return `<${markdownPath}>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"; type="text/markdown"`
+  return `<${markdownPath}>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"; type="text/markdown", </.well-known/api-catalog>; rel="api-catalog"`
 }
 
 function responseWithHeaders(response, extraHeaders = {}) {
@@ -75,14 +76,89 @@ function notFoundResponse(request, representation) {
   )
 }
 
+function jsonResponse(value, { request, status = 200, headers = {} } = {}) {
+  return new Response(
+    request?.method === "HEAD" ? null : JSON.stringify(value, null, 2),
+    {
+      status,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json; charset=utf-8",
+        ...headers,
+      },
+    },
+  )
+}
+
+function apiError(request, status, code, message, resolution) {
+  return jsonResponse(
+    {
+      error: {
+        code,
+        message,
+        resolution,
+        documentation: "https://armand-salle.fr/developers",
+      },
+    },
+    { request, status },
+  )
+}
+
 export async function onRequest(context) {
   const { request } = context
+  const url = new URL(request.url)
+  const pathname = normalizePath(url.pathname)
+  const isApiPath = pathname === "/api" || pathname.startsWith("/api/")
+
+  if (request.method === "OPTIONS" && isApiPath) {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Headers": "Accept, Content-Type",
+        "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+  }
+
   if (request.method !== "GET" && request.method !== "HEAD") {
+    if (isApiPath) {
+      return apiError(
+        request,
+        405,
+        "method_not_allowed",
+        "This public API supports retrieval only.",
+        "Retry with GET or HEAD. No write operations are available.",
+      )
+    }
     return context.next()
   }
 
-  const url = new URL(request.url)
-  const pathname = normalizePath(url.pathname)
+  if (pathname === "/" && url.searchParams.get("mode") === "agent") {
+    return jsonResponse(
+      {
+        mode: "agent",
+        description:
+          "Structured entry point for Armand Sallé's public, read only profile and technical content.",
+        authentication: "none",
+        profile,
+        resources,
+        guidance: {
+          whenToUse:
+            "Use for professional profile research, hiring fit, public contact details, or retrieving Armand Sallé's technical writing.",
+          restrictions:
+            "Retrieval only. Do not infer private details or unpublished client information.",
+        },
+      },
+      {
+        request,
+        headers: {
+          Link: '</llms.txt>; rel="describedby"; type="text/markdown", </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json;version=3.1"',
+        },
+      },
+    )
+  }
+
   const representation = negotiateContentType(request.headers.get("Accept"))
   const markdown = markdownRepresentations.get(pathname)
 
@@ -107,6 +183,16 @@ export async function onRequest(context) {
     assetResponse.status === 200 &&
     assetResponse.headers.get("Content-Type")?.includes("text/html") &&
     !KNOWN_PAGE_PATHS.has(pathname)
+
+  if (isApiPath && (assetResponse.status === 404 || isUnexpectedHtmlFallback)) {
+    return apiError(
+      request,
+      404,
+      "resource_not_found",
+      "The requested API resource does not exist.",
+      "Use /api/resources.json to list supported endpoints or inspect /openapi.json.",
+    )
+  }
 
   if (assetResponse.status === 404 && representation === "text/markdown") {
     return notFoundResponse(request, representation)

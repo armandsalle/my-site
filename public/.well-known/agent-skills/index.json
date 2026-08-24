@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "name": "Armand Sallé agent skills",
+  "description": "Public, read only capabilities for profile research and technical article retrieval.",
+  "skills": [
+    {
+      "id": "get-public-profile",
+      "name": "Get Armand Sallé's public profile",
+      "description": "Retrieve canonical professional identity, location, availability, specialties, contact details, and public profiles.",
+      "documentation": "https://armand-salle.fr/developers",
+      "endpoint": "https://armand-salle.fr/api/profile.json",
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "discover-public-resources",
+      "name": "Discover public resources",
+      "description": "Find canonical Markdown pages, technical writing, feeds, documentation, and API discovery documents.",
+      "documentation": "https://armand-salle.fr/developers",
+      "endpoint": "https://armand-salle.fr/api/resources.json",
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    }
+  ]
+}

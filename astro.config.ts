@@ -8,10 +8,22 @@ import tailwindcss from "@tailwindcss/vite"
 // https://astro.build/config
 export default defineConfig({
   site: "https://armand-salle.fr",
-  integrations: [expressiveCode({
+  integrations: [
+    expressiveCode({
       themes: ["catppuccin-latte"],
-      styleOverrides: { codeBackground: undefined, frames: { shadowColor: "transparent" } },
-    }), mdx(), sitemap(), react()],
+      styleOverrides: {
+        codeBackground: undefined,
+        frames: { shadowColor: "transparent" },
+      },
+    }),
+    mdx(),
+    sitemap({
+      serialize(item) {
+        return { ...item, lastmod: "2026-08-24" }
+      },
+    }),
+    react(),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
